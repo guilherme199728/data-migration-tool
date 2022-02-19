@@ -9,8 +9,7 @@ import java.sql.SQLException;
 
 public class Principal {
     public static void main(String[] args) throws SQLException {
-        ConnetionOracleJDBC.initDatabaseConnectionPoolProd();
-        ConnetionOracleJDBC.initDatabaseConnectionPoolHomolog();
+        ConnetionOracleJDBC.initDatabaseConnectionPool();
         Connection con = ConnetionOracleJDBC.getConnectionProd();
 
         PreparedStatement ps = con.prepareStatement("SELECT * FROM ACCOUNT");
@@ -27,8 +26,7 @@ public class Principal {
             System.out.println(resultSet1.getString("NAME"));
         }
 
-        ConnetionOracleJDBC.closeDataBaseConnectionPoolProd();
-        ConnetionOracleJDBC.closeDataBaseConnectionPoolhomolog();
+        ConnetionOracleJDBC.closeDataBaseConnectionPool();
 
     }
 }

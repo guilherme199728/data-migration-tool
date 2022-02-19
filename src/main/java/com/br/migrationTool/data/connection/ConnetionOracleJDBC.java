@@ -28,27 +28,21 @@ public class ConnetionOracleJDBC {
         return null;
     }
 
-    public static void initDatabaseConnectionPoolProd() {
+    public static void initDatabaseConnectionPool() {
         // TODO: trocar por properties
         dataSourceProd = new HikariDataSource();
         dataSourceProd.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:ORCLCDB");
         dataSourceProd.setUsername("PROD");
         dataSourceProd.setPassword("PROD");
-    }
 
-    public static void closeDataBaseConnectionPoolProd() {
-        dataSourceProd.close();
-    }
-
-    public static void initDatabaseConnectionPoolHomolog() {
-        // TODO: trocar por properties
         dataSourceHomolog = new HikariDataSource();
         dataSourceHomolog.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:ORCLCDB");
         dataSourceHomolog.setUsername("HOMOLOG");
         dataSourceHomolog.setPassword("HOMOLOG");
     }
 
-    public static void closeDataBaseConnectionPoolhomolog() {
+    public static void closeDataBaseConnectionPool() {
+        dataSourceProd.close();
         dataSourceHomolog.close();
     }
 }
