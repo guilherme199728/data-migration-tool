@@ -1,62 +1,54 @@
 package com.br.migrationTool.data.connection;
 
-import com.br.migrationTool.dto.ConectionDataBaseDto;
+import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnetionOracleJDBC {
-    public static Connection getConnectionProd() {
-        // TODO: trocar por properties
-        ConectionDataBaseDto conectionDataBaseDto = ConectionDataBaseDto.builder()
-                .database("ORCLCDB")
-                .host("localhost")
-                .user("PROD")
-                .password("PROD")
-                .port("1521")
-                .build();
 
-        return getConnection(conectionDataBaseDto);
-    }
+    private static HikariDataSource dataSourceProd;
+    private static HikariDataSource dataSourceHomolog;
+
+    public static Connection getConnectionProd() {
+        try {
+            return dataSourceProd.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+}
 
     public static Connection getConnectionHomolog() {
-        // TODO: trocar por properties
-        ConectionDataBaseDto conectionDataBaseDto = ConectionDataBaseDto.builder()
-            .database("ORCLCDB")
-            .host("localhost")
-            .user("HOMOLOG")
-            .password("HOMOLOG")
-            .port("1521")
-            .build();
-
-        return getConnection(conectionDataBaseDto);
+        try {
+            return dataSourceHomolog.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private static Connection getConnection(ConectionDataBaseDto conectionDataBaseDto) {
-        Connection conn = null;
+    public static void initDatabaseConnectionPoolProd() {
+        // TODO: trocar por properties
+        dataSourceProd = new HikariDataSource();
+        dataSourceProd.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:ORCLCDB");
+        dataSourceProd.setUsername("PROD");
+        dataSourceProd.setPassword("PROD");
+    }
 
-        try {
+    public static void closeDataBaseConnectionPoolProd() {
+        dataSourceProd.close();
+    }
 
-            String connectionString = "jdbc:oracle:thin:@"
-                    + conectionDataBaseDto.getHost() +
-                    ":" + conectionDataBaseDto.getPort() +
-                    ":" + conectionDataBaseDto.getDatabase();
-            Class.forName("oracle.jdbc.OracleDriver");
-            conn = DriverManager.getConnection(
-                connectionString,
-                conectionDataBaseDto.getUser(),
-                conectionDataBaseDto.getPassword()
-            );
+    public static void initDatabaseConnectionPoolHomolog() {
+        // TODO: trocar por properties
+        dataSourceHomolog = new HikariDataSource();
+        dataSourceHomolog.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:ORCLCDB");
+        dataSourceHomolog.setUsername("HOMOLOG");
+        dataSourceHomolog.setPassword("HOMOLOG");
+    }
 
-            return conn;
-
-        } catch (ClassNotFoundException e) {
-            System.out.println("Classe Driver JDBC não foi localizado, erro: " + e.getMessage());
-        } catch (SQLException e) {
-            System.out.println("Erro de conexão com o Banco de dados, erro: " + e.getMessage());
-        }
-
-        return conn;
+    public static void closeDataBaseConnectionPoolhomolog() {
+        dataSourceHomolog.close();
     }
 }
