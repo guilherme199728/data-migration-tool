@@ -1,6 +1,7 @@
 package com.br.migrationTool;
 
 import com.br.migrationTool.data.connection.ConnetionOracleJDBC;
+import com.br.migrationTool.propertie.PropertiesLoaderImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +10,9 @@ import java.sql.SQLException;
 
 public class Principal {
     public static void main(String[] args) throws SQLException {
+
+        PropertiesLoaderImpl.getValue("database.prod.userq");
+
         ConnetionOracleJDBC.initDatabaseConnectionPool();
         Connection con = ConnetionOracleJDBC.getConnectionProd();
 
@@ -17,7 +21,6 @@ public class Principal {
         while (resultSet.next()) {
             System.out.println(resultSet.getString("AVAIL_BALANCE"));
         }
-
 
         Connection con1 = ConnetionOracleJDBC.getConnectionHomolog();
         PreparedStatement ps1 = con1.prepareStatement("SELECT * FROM DEPARTMENT");

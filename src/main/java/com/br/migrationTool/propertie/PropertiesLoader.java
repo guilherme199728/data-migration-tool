@@ -1,5 +1,7 @@
 package com.br.migrationTool.propertie;
 
+import com.br.migrationTool.exception.PropertyNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -10,13 +12,17 @@ public class PropertiesLoader {
 
     protected PropertiesLoader(){
         properties = new Properties();
-        InputStream in = this.getClass().getResourceAsStream("resource/configuracao.properties");
+        String propertyFileName = "/config/config.properties1";
+        InputStream in = this.getClass().getResourceAsStream(propertyFileName);
         try{
             properties.load(in);
             in.close();
         }
-        catch(IOException | NullPointerException e){
-            System.out.println("Propertied not found.");
+        catch(IOException e){
+            throw new PropertyNotFoundException("error in load property", e);
+        }
+        catch (NullPointerException e) {
+            throw new PropertyNotFoundException("Property " + propertyFileName + " not found");
         }
     }
 

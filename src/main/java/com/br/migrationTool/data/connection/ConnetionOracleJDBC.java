@@ -1,5 +1,6 @@
 package com.br.migrationTool.data.connection;
 
+import com.br.migrationTool.propertie.PropertiesLoaderImpl;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
@@ -10,35 +11,35 @@ public class ConnetionOracleJDBC {
     private static HikariDataSource dataSourceProd;
     private static HikariDataSource dataSourceHomolog;
 
-    public static Connection getConnectionProd() {
-        try {
-            return dataSourceProd.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static Connection getConnectionProd() throws SQLException {
+        return dataSourceProd.getConnection();
     }
 
-    public static Connection getConnectionHomolog() {
-        try {
-            return dataSourceHomolog.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static Connection getConnectionHomolog() throws SQLException {
+        return dataSourceHomolog.getConnection();
     }
 
     public static void initDatabaseConnectionPool() {
-        // TODO: trocar por properties
+
+        String urlJdbcProd = "jdbc:oracle:thin:@" +
+            PropertiesLoaderImpl.getValue("database.prod.host") + ":" +
+            PropertiesLoaderImpl.getValue("database.prod.port") + ":" +
+            PropertiesLoaderImpl.getValue("database.prod.database");
+
         dataSourceProd = new HikariDataSource();
-        dataSourceProd.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:ORCLCDB");
-        dataSourceProd.setUsername("PROD");
-        dataSourceProd.setPassword("PROD");
+        dataSourceProd.setJdbcUrl(urlJdbcProd);
+        dataSourceProd.setUsername(PropertiesLoaderImpl.getValue("database.prod.user"));
+        dataSourceProd.setPassword(PropertiesLoaderImpl.getValue("database.prod.password"));
+
+        String urlJdbcHomolog = "jdbc:oracle:thin:@" +
+            PropertiesLoaderImpl.getValue("database.homolog.host") + ":" +
+            PropertiesLoaderImpl.getValue("database.homolog.port") + ":" +
+            PropertiesLoaderImpl.getValue("database.homolog.database");
 
         dataSourceHomolog = new HikariDataSource();
-        dataSourceHomolog.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:ORCLCDB");
-        dataSourceHomolog.setUsername("HOMOLOG");
-        dataSourceHomolog.setPassword("HOMOLOG");
+        dataSourceHomolog.setJdbcUrl(urlJdbcHomolog);
+        dataSourceHomolog.setUsername(PropertiesLoaderImpl.getValue("database.homolog.user"));
+        dataSourceHomolog.setPassword(PropertiesLoaderImpl.getValue("database.homolog.password"));
     }
 
     public static void closeDataBaseConnectionPool() {
