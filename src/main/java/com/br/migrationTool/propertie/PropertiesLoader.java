@@ -12,7 +12,7 @@ public class PropertiesLoader {
 
     protected PropertiesLoader(){
         properties = new Properties();
-        String propertyFileName = "/config/config.properties1";
+        String propertyFileName = "/config/config.properties";
         InputStream in = this.getClass().getResourceAsStream(propertyFileName);
         try{
             properties.load(in);
