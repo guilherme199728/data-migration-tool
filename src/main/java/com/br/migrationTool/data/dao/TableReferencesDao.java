@@ -83,8 +83,7 @@ public class TableReferencesDao {
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<String>> rsh = new BeanListHandler<>(String.class);
-        Object [] params = new Object[]{tableName};
 
-        return runner.query(connection, sql, rsh, params);
+        return runner.query(connection, sql, rsh, tableName);
     }
 }
