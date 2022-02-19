@@ -13,6 +13,9 @@ public class Principal {
         Connection con = ConnetionOracleJDBC.getConnectionProd();
 
         TableReferencesDao.getParentTablesFromTableName("PROD", "ACCOUNT", con);
+        TableReferencesDao.getAllNamesColunsTableFromTableName("ACCOUNT", con);
+        TableReferencesDao.getChildrenTablesFromTableName("PROD", "ACCOUNT", con);
+        TableReferencesDao.getPrimaryKeyNamesFromTableName("PROD", "ACCOUNT", con);
 
         ConnetionOracleJDBC.closeDataBaseConnectionPool();
 

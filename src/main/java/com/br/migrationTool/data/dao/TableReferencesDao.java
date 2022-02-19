@@ -7,7 +7,10 @@ import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TableReferencesDao {
@@ -58,32 +61,44 @@ public class TableReferencesDao {
         return runner.query(connection, sql, rsh, params);
     }
 
-    public static List<String> getPrimaryKeyNamesFromTableName(String owner, String tableName, Connection connection) throws SQLException {
+    public static String getPrimaryKeyNamesFromTableName(String owner, String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT A.COLUMN_NAME " +
         "FROM ALL_CONS_COLUMNS A " +
         "JOIN ALL_CONSTRAINTS C ON A.OWNER = C.OWNER " +
         "AND A.CONSTRAINT_NAME = C.CONSTRAINT_NAME " +
         "WHERE C.OWNER = ? " +
-        "AND C.CONSTRAINT_TYPE = ? " +
+        "AND C.CONSTRAINT_TYPE = 'P' " +
         "AND C.TABLE_NAME = ? ";
 
-        QueryRunner runner = new QueryRunner();
-        ResultSetHandler<List<String>> rsh = new BeanListHandler<>(String.class);
-        Object [] params = new Object[]{owner, owner, tableName};
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, owner);
+        ps.setString(2, tableName);
+        ResultSet rs = ps.executeQuery();
 
-        return runner.query(connection, sql, rsh, params);
+        String primaryKeyNames = null;
+        while (rs.next()) {
+            primaryKeyNames = rs.getString("COLUMN_NAME");
+        }
+
+        return primaryKeyNames;
     }
 
-    public static List<String> getAllColunsTableFromTableName(String tableName, Connection connection) throws SQLException {
+    public static List<String> getAllNamesColunsTableFromTableName(String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT COLUMN_NAME, DATA_TYPE " +
         "FROM USER_TAB_COLUMNS WHERE " +
         "TABLE_NAME = ? ";
 
-        QueryRunner runner = new QueryRunner();
-        ResultSetHandler<List<String>> rsh = new BeanListHandler<>(String.class);
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, tableName);
+        ResultSet rs = ps.executeQuery();
 
-        return runner.query(connection, sql, rsh, tableName);
+        List<String> allNamesColunsTable = new ArrayList<>();
+        while (rs.next()) {
+            allNamesColunsTable.add(rs.getString("COLUMN_NAME"));
+        }
+
+        return allNamesColunsTable;
     }
 }
