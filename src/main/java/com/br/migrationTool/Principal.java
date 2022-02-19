@@ -1,7 +1,6 @@
 package com.br.migrationTool;
 
 import com.br.migrationTool.data.connection.ConnetionOracleJDBC;
-import com.br.migrationTool.propertie.PropertiesLoaderImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
