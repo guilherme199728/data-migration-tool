@@ -17,7 +17,7 @@ public class ConnetionOracleJDBC {
             e.printStackTrace();
         }
         return null;
-}
+    }
 
     public static Connection getConnectionHomolog() {
         try {
