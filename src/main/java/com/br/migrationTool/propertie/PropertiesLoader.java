@@ -22,7 +22,7 @@ public class PropertiesLoader {
             throw new PropertyNotFoundException("error in load property", e);
         }
         catch (NullPointerException e) {
-            throw new PropertyNotFoundException("Property " + propertyFileName + " not found");
+            throw new PropertyNotFoundException("Property " + propertyFileName + " not found.");
         }
     }
 
