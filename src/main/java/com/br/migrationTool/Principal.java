@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class Principal {
     public static void main(String[] args) throws SQLException {
 
-        PropertiesLoaderImpl.getValue("database.prod.userq");
+        PropertiesLoaderImpl.getValue("database.prod.user");
 
         ConnetionOracleJDBC.initDatabaseConnectionPool();
         Connection con = ConnetionOracleJDBC.getConnectionProd();
