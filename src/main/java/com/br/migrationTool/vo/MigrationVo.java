@@ -15,14 +15,6 @@ public class MigrationVo {
     private List<String> primaryKeys;
     private static List<MigrationVo> listMigrationVo = new ArrayList<>();
 
-    public static void setListMigration(String tableName, List<String> primaryKeys) {
-        if (isExistTableNameInListMigration(tableName)) {
-            setPrimaryKeysInExistingTableListMigration(tableName, primaryKeys);
-        } else {
-            setNewTableNameAndPrimaryKeyInListMigration(tableName, primaryKeys);
-        }
-    }
-
     public static List<MigrationVo> getListMigration() {
         return listMigrationVo;
     }
@@ -40,31 +32,22 @@ public class MigrationVo {
         return listMigrationVo.stream().filter(migrationVo -> migrationVo.getTableName().equals(tableName)).findAny().orElse(null);
     }
 
-    private static void setNewTableNameAndPrimaryKeyInListMigration(String tableName, List<String> primaryKeys) {
-        listMigrationVo.add(
-                MigrationVo.builder()
-                        .tableName(tableName)
-                        .primaryKeys(primaryKeys.stream().distinct().collect(Collectors.toList()))
-                        .build()
-        );
-    }
-
-    private static void setPrimaryKeysInExistingTableListMigration(String tableName, List<String> primaryKeys) {
-        for (MigrationVo migrationVo : listMigrationVo) {
-            if (migrationVo.getTableName().equals(tableName)) {
-                for (String primaryKey : primaryKeys) {
-                    if (!migrationVo.getPrimaryKeys().contains(primaryKey)) {
-                        migrationVo.getPrimaryKeys().add(primaryKey);
-                    }
+    public static void setListMigration(String tableName, List<String> primaryKeys) {
+        MigrationVo migrationVo = getMigrationByTableName(tableName);
+        if(migrationVo != null) {
+            for (String primaryKey : primaryKeys) {
+                if (!migrationVo.getPrimaryKeys().contains(primaryKey)) {
+                    migrationVo.getPrimaryKeys().add(primaryKey);
                 }
             }
+        } else {
+            listMigrationVo.add(
+                MigrationVo.builder()
+                .tableName(tableName)
+                .primaryKeys(primaryKeys.stream().distinct().collect(Collectors.toList()))
+                .build()
+            );
         }
-    }
-
-    private static boolean isExistTableNameInListMigration(String tableName) {
-        return listMigrationVo.stream().map(
-                MigrationVo::getTableName
-        ).collect(Collectors.toList()).contains(tableName);
     }
 }
 
