@@ -15,7 +15,7 @@ import java.util.List;
 
 public class TableReferencesDao {
 
-    public static List<ParentTableDto> getParentTablesFromTableName(String owner, String tableName, Connection connection) throws SQLException {
+    public static List<ParentTableDto> getParentTablesFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEY, A.COLUMN_NAME AS FOREINGKEY " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -37,7 +37,7 @@ public class TableReferencesDao {
         return runner.query(connection, sql, rsh, params);
     }
 
-    public static List<ChildrenTableDto> getChildrenTablesFromTableName(String owner, String tableName, Connection connection) throws SQLException {
+    public static List<ChildrenTableDto> getChildrenTablesFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT C.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEY, B2.COLUMN_NAME AS FOREINGKEY " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -61,7 +61,7 @@ public class TableReferencesDao {
         return runner.query(connection, sql, rsh, params);
     }
 
-    public static String getPrimaryKeyNamesFromTableName(String owner, String tableName, Connection connection) throws SQLException {
+    public static String getPrimaryKeyNameFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT A.COLUMN_NAME " +
         "FROM ALL_CONS_COLUMNS A " +
