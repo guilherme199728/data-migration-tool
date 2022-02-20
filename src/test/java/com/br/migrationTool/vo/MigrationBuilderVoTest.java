@@ -1,15 +1,13 @@
 package com.br.migrationTool.vo;
 
-import com.br.migrationTool.builders.PrimaryKeysBuilder;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.br.migrationTool.builders.PrimaryKeysBuilder.*;
+import static com.br.migrationTool.builders.PrimaryKeysBuilder.onListPrimaryKeysOneElementBuilder;
 import static com.br.migrationTool.builders.PrimaryKeysBuilder.oneListPrimaryKeysBuilder;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
