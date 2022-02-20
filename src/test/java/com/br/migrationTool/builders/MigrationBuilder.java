@@ -8,14 +8,14 @@ public class MigrationBuilder {
     public static MigrationBuilder oneMigration() {
         MigrationBuilder builder = new MigrationBuilder();
         builder.migrationVo = MigrationVo.builder()
-                .primaryKeys(PrimaryKeysBuilder.onePrimaryKeysBuilder().builder())
+                .primaryKeys(PrimaryKeysBuilder.oneListPrimaryKeysBuilder().build())
                 .tableName("Test")
                 .build();
 
         return builder;
     }
 
-    public MigrationVo builder() {
+    public MigrationVo build() {
         return migrationVo;
     }
 }

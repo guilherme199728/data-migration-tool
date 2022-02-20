@@ -6,7 +6,7 @@ import java.util.List;
 public class PrimaryKeysBuilder {
     private static List<String> primaryKeys;
 
-    public static PrimaryKeysBuilder onePrimaryKeysBuilder() {
+    public static PrimaryKeysBuilder oneListPrimaryKeysBuilder() {
         PrimaryKeysBuilder builder = new PrimaryKeysBuilder();
         primaryKeys = new ArrayList<>();
         primaryKeys.add("1");
@@ -23,7 +23,15 @@ public class PrimaryKeysBuilder {
         return builder;
     }
 
-    public List<String> builder() {
+    public static PrimaryKeysBuilder onListPrimaryKeysOneElementBuilder(String item) {
+        PrimaryKeysBuilder builder = new PrimaryKeysBuilder();
+        primaryKeys = new ArrayList<>();
+        primaryKeys.add(item);
+
+        return builder;
+    }
+
+    public List<String> build() {
         return primaryKeys;
     }
 }
