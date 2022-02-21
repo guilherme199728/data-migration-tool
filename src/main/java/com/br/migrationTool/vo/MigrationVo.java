@@ -32,6 +32,17 @@ public class MigrationVo {
         return listMigrationVo.stream().filter(migrationVo -> migrationVo.getTableName().equals(tableName)).findAny().orElse(null);
     }
 
+    public static void removePrimaryKeysListMigrationByTableName(String tableName, List<String> primaryKeys) {
+        MigrationVo migrationVo = getMigrationByTableName(tableName);
+
+        primaryKeys.forEach(primaryKeyForRemove -> migrationVo.getPrimaryKeys().remove(primaryKeyForRemove));
+
+        if(migrationVo.getPrimaryKeys().size() == 0) {
+            MigrationVo.getListMigration().remove(migrationVo);
+        }
+
+    }
+
     public static void setListMigration(String tableName, List<String> primaryKeys) {
         MigrationVo migrationVo = getMigrationByTableName(tableName);
         if(migrationVo != null) {
@@ -48,6 +59,10 @@ public class MigrationVo {
                 .build()
             );
         }
+    }
+
+    public static void clearMigrationList() {
+        listMigrationVo = new ArrayList<>();
     }
 }
 
