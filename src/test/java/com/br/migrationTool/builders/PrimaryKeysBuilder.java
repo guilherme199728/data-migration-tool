@@ -23,7 +23,7 @@ public class PrimaryKeysBuilder {
         return builder;
     }
 
-    public static PrimaryKeysBuilder onListPrimaryKeysOneElementBuilder(String item) {
+    public static PrimaryKeysBuilder oneListPrimaryKeysOneElementBuilder(String item) {
         PrimaryKeysBuilder builder = new PrimaryKeysBuilder();
         primaryKeys = new ArrayList<>();
         primaryKeys.add(item);
