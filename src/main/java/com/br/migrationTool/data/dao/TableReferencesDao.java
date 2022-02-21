@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TableReferencesDao {
 
@@ -84,7 +85,7 @@ public class TableReferencesDao {
         return primaryKeyNames;
     }
 
-    public static List<String> getAllNamesColunsTableFromTableName(String tableName, Connection connection) throws SQLException {
+    public static List<String> getAllNamesColumnsTableFromTableName(String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT COLUMN_NAME, DATA_TYPE " +
         "FROM USER_TAB_COLUMNS WHERE " +
@@ -100,5 +101,73 @@ public class TableReferencesDao {
         }
 
         return allNamesColunsTable;
+    }
+
+    public static List<String> getPrimaryKeys(String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, Connection connection) throws SQLException {
+
+        String sql = String.format("SELECT %s FROM %s WHERE %s BETWEEN %s AND %s", primaryKeyName, tableName, whereColum, starRange, endRange);
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        List<String> allNamesColunsTable = new ArrayList<>();
+        while (rs.next()) {
+            allNamesColunsTable.add(rs.getString(primaryKeyName));
+        }
+
+        return allNamesColunsTable;
+    }
+
+    private static String getPrimaryKeys(String tableName, String primaryKeyName, String whereColum) {
+        // TODO : Terminar implementação
+        List<String> primaryKeys = new ArrayList<>();
+        Random random = new Random();
+
+        for (int i = 0; i < 50; i++) {
+            primaryKeys.add(String.valueOf(random.nextInt(50)));
+        }
+
+        int offSet = 10;
+
+        return String.format("SELECT %s FROM %s WHERE %s IN ", primaryKeyName, tableName, whereColum) + getPrimaryKeysConcatenatedByOffSet(primaryKeyName, primaryKeys, offSet);
+    }
+
+    private static String getPrimaryKeysConcatenatedByOffSet(String primaryKeyName, List<String> primaryKeys, int offSet) {
+
+        List<String> listPrimaryKeysByOffSet = getListPrimaryKeysSeparatedByBarByOffset(offSet, primaryKeys);
+
+        int index = 1;
+        StringBuilder offSetQueryConcat = new StringBuilder();
+        for (String primaryKeyByOffSet : listPrimaryKeysByOffSet) {
+            if (index == 1) {
+                offSetQueryConcat.append("(").append(primaryKeyByOffSet).append(")");
+            } else {
+                offSetQueryConcat.append(" OR ").append(primaryKeyName).append(" IN (").append(primaryKeyByOffSet).append(")");
+            }
+
+            index++;
+        }
+
+        return offSetQueryConcat.toString();
+    }
+
+    private static List<String> getListPrimaryKeysSeparatedByBarByOffset(int offSet, List<String> primaryKeys) {
+        StringBuilder primaryKeysConcat = new StringBuilder();
+        int nextOffSet = offSet;
+        int index = 1;
+
+        for (String primaryKey : primaryKeys) {
+            primaryKeysConcat.append(primaryKey);
+            if(nextOffSet == index){
+                primaryKeysConcat.append("/");
+                nextOffSet = nextOffSet + offSet;
+            } else if (index != primaryKeys.size()){
+                primaryKeysConcat.append(",");
+            }
+
+            index++;
+        }
+
+        return List.of(primaryKeysConcat.toString().split("/"));
     }
 }
