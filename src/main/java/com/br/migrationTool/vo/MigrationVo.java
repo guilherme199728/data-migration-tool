@@ -49,6 +49,7 @@ public class MigrationVo {
             for (String primaryKey : migrationDto.getPrimaryKeys()) {
                 if (!migrationDtoExisting.getPrimaryKeys().contains(primaryKey)) {
                     migrationDtoExisting.getPrimaryKeys().add(primaryKey);
+                    migrationDtoExisting.setSearchedReference(migrationDto.isSearchedReference());
                 }
             }
         } else {
@@ -63,8 +64,16 @@ public class MigrationVo {
         }
     }
 
+    public static void setSearchedReferenceByTableName(String tableName, boolean isSearchedReference) {
+        getMigrationByTableName(tableName).setSearchedReference(isSearchedReference);
+    }
+
     public static void clearMigrationList() {
         listMigrationVo = new ArrayList<>();
+    }
+
+    public static List<MigrationDto> cloneMigration() {
+        return new ArrayList<>(listMigrationVo);
     }
 }
 

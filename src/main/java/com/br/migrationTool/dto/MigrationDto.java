@@ -14,4 +14,5 @@ public class MigrationDto {
     private List<String> primaryKeys;
     private TableDataDto tableDataDto;
     private ChildrenTableDto childrenTableDto;
+    private boolean isSearchedReference;
 }

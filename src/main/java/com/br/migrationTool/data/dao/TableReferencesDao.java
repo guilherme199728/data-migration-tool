@@ -18,25 +18,9 @@ import java.util.Random;
 
 public class TableReferencesDao {
 
-    public static TableDataDto getTableData(String owner, String tableName, Connection connection) throws SQLException {
-        String sql = "SELECT TABLE_NAME AS TABLENAME, COLUMN_NAME AS PRIMARYKEY, COLUMN_NAME AS FOREINGKEY " +
-        "FROM ALL_CONS_COLUMNS " +
-        "WHERE OWNER = ? " +
-        "AND OWNER = ? " +
-        "AND TABLE_NAME = ? " +
-        "AND COLUMN_NAME LIKE %" + "?" + "% " +
-        "AND ROWNUM <= 1 ";
-
-        QueryRunner runner = new QueryRunner();
-        ResultSetHandler<TableDataDto> rsh = new BeanHandler<>(TableDataDto.class);
-        Object [] params = new Object[]{owner, owner, tableName, tableName};
-
-        return runner.query(connection, sql, rsh, params);
-    }
-
     public static List<ParentTableDto> getParentTablesFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
 
-        String sql = "SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEY, A.COLUMN_NAME AS FOREINGKEY " +
+        String sql = "SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, A.COLUMN_NAME AS FOREINGKEYNAME " +
         "FROM ALL_CONS_COLUMNS A " +
         "JOIN ALL_CONSTRAINTS C ON A.OWNER = C.OWNER " +
         "AND A.CONSTRAINT_NAME = C.CONSTRAINT_NAME " +
@@ -58,7 +42,7 @@ public class TableReferencesDao {
 
     public static List<ChildrenTableDto> getChildrenTablesFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
 
-        String sql = "SELECT C.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEY, B2.COLUMN_NAME AS FOREINGKEY " +
+        String sql = "SELECT C.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, B2.COLUMN_NAME AS FOREINGKEYNAME " +
         "FROM ALL_CONS_COLUMNS A " +
         "JOIN ALL_CONSTRAINTS C ON A.OWNER = C.OWNER " +
         "AND A.CONSTRAINT_NAME = C.R_CONSTRAINT_NAME " +
@@ -129,6 +113,7 @@ public class TableReferencesDao {
         ResultSet rs = ps.executeQuery();
 
         List<String> allNamesColunsTable = new ArrayList<>();
+
         while (rs.next()) {
             allNamesColunsTable.add(rs.getString(primaryKeyName));
         }
