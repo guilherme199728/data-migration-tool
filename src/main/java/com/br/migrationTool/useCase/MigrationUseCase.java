@@ -17,12 +17,12 @@ public class MigrationUseCase {
         String starRange = "1";
         String endRange = "8";
 
-        addInitalTableToMigrationListByRange(initialTableName, starRange, endRange);
-
+        addInitialTableToMigrationListByRange(initialTableName, starRange, endRange);
         createMigrationList();
+        executeMigration();
     }
 
-    private void addInitalTableToMigrationListByRange(String initialTableName, String starRange, String endRange) throws SQLException {
+    private void addInitialTableToMigrationListByRange(String initialTableName, String starRange, String endRange) throws SQLException {
         List<String> allNamesColumnsInitialTable = TableReferencesDao.getAllNamesColumnsTableFromTableName(initialTableName, ConnetionOracleJDBC.getConnectionHomolog());
 
         TableDataDto tableDataDto = TableDataDto.builder()
@@ -71,7 +71,7 @@ public class MigrationUseCase {
             for (MigrationDto migrationDto : migrationsDto) {
 
                 if (!migrationDto.isSearchedReference()) {
-                    List<ParentTableDto> parentTableDtos = TableReferencesDao.getParentTablesFromConstrant(
+                    List<ParentTableDto> parentTableDtos = TableReferencesDao.getParentTablesFromConstraint(
                             PropertiesLoaderImpl.getValue("database.homolog.owner"),
                             migrationDto.getTableName(),
                             ConnetionOracleJDBC.getConnectionProd()
@@ -122,5 +122,9 @@ public class MigrationUseCase {
             MigrationVo.removePrimaryKeysListMigrationByTableName(parentTableDto.getTableName(), primaryKeysHomolog);
 
         }
+    }
+
+    private void executeMigration() {
+
     }
 }

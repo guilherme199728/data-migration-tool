@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class TableReferencesDao {
 
-    public static List<ParentTableDto> getParentTablesFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
+    public static List<ParentTableDto> getParentTablesFromConstraint(String owner, String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, A.COLUMN_NAME AS FOREINGKEYNAME " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -39,7 +39,7 @@ public class TableReferencesDao {
         return runner.query(connection, sql, rsh, params);
     }
 
-    public static List<ChildrenTableDto> getChildrenTablesFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
+    public static List<ChildrenTableDto> getChildrenTablesFromConstraint(String owner, String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT C.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, B2.COLUMN_NAME AS FOREINGKEYNAME " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -63,7 +63,7 @@ public class TableReferencesDao {
         return runner.query(connection, sql, rsh, params);
     }
 
-    public static String getPrimaryKeyNameFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
+    public static String getPrimaryKeyNameFromConstraint(String owner, String tableName, Connection connection) throws SQLException {
 
         String sql = "SELECT A.COLUMN_NAME " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -104,22 +104,6 @@ public class TableReferencesDao {
         return allNamesColunsTable;
     }
 
-    public static List<String> getPrimaryKeysByRange(String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, Connection connection) throws SQLException {
-
-        String sql = String.format("SELECT %s FROM %s WHERE %s BETWEEN %s AND %s", primaryKeyName, tableName, whereColum, starRange, endRange);
-
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-
-        List<String> allNamesColunsTable = new ArrayList<>();
-
-        while (rs.next()) {
-            allNamesColunsTable.add(rs.getString(primaryKeyName));
-        }
-
-        return allNamesColunsTable;
-    }
-
     public static List<String> getPrimaryKeysByParentTable(MigrationDto migrationDto, ParentTableDto parentTableDto, Connection connection) throws SQLException {
 
         int offSet = 950;
@@ -151,18 +135,20 @@ public class TableReferencesDao {
         return allPrimaryKeys;
     }
 
-    private static String getPrimaryKeysByRange(String tableName, String primaryKeyName, String whereColum) {
-        // TODO : Terminar implementação
-        List<String> primaryKeys = new ArrayList<>();
-        Random random = new Random();
+    public static List<String> getPrimaryKeysByRange(String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, Connection connection) throws SQLException {
 
-        for (int i = 0; i < 50; i++) {
-            primaryKeys.add(String.valueOf(random.nextInt(50)));
+        String sql = String.format("SELECT %s FROM %s WHERE %s BETWEEN %s AND %s", primaryKeyName, tableName, whereColum, starRange, endRange);
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        List<String> allNamesColumnsTable = new ArrayList<>();
+
+        while (rs.next()) {
+            allNamesColumnsTable.add(rs.getString(primaryKeyName));
         }
 
-        int offSet = 10;
-
-        return String.format("SELECT %s FROM %s WHERE %s IN ", primaryKeyName, tableName, whereColum) + getPrimaryKeysConcatenatedByOffSet(primaryKeyName, primaryKeys, offSet);
+        return allNamesColumnsTable;
     }
 
     private static String getPrimaryKeysConcatenatedByOffSet(String primaryKeyName, List<String> primaryKeys, int offSet) {
