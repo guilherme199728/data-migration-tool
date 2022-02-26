@@ -3,10 +3,8 @@ package com.br.migrationTool.data.dao;
 import com.br.migrationTool.dto.ChildrenTableDto;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
-import com.br.migrationTool.dto.TableDataDto;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.Connection;
@@ -106,7 +104,7 @@ public class TableReferencesDao {
         return allNamesColunsTable;
     }
 
-    public static List<String> getPrimaryKeys(String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, Connection connection) throws SQLException {
+    public static List<String> getPrimaryKeysByRange(String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, Connection connection) throws SQLException {
 
         String sql = String.format("SELECT %s FROM %s WHERE %s BETWEEN %s AND %s", primaryKeyName, tableName, whereColum, starRange, endRange);
 
@@ -153,7 +151,7 @@ public class TableReferencesDao {
         return allPrimaryKeys;
     }
 
-    private static String getPrimaryKeys(String tableName, String primaryKeyName, String whereColum) {
+    private static String getPrimaryKeysByRange(String tableName, String primaryKeyName, String whereColum) {
         // TODO : Terminar implementação
         List<String> primaryKeys = new ArrayList<>();
         Random random = new Random();

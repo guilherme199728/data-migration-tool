@@ -57,11 +57,14 @@ public class MigrationVo {
                  MigrationDto.builder()
                 .tableName(migrationDto.getTableName())
                 .primaryKeys(migrationDto.getPrimaryKeys().stream().distinct().collect(Collectors.toList()))
-                .childrenTableDto(migrationDto.getChildrenTableDto())
                 .tableDataDto(migrationDto.getTableDataDto())
                 .build()
             );
         }
+    }
+
+    public static boolean isAllReferencesSearched() {
+        return listMigrationVo.stream().filter(migrationDto -> ((Boolean) migrationDto.isSearchedReference()).equals(false)).findAny().orElse(null) != null;
     }
 
     public static void setSearchedReferenceByTableName(String tableName, boolean isSearchedReference) {

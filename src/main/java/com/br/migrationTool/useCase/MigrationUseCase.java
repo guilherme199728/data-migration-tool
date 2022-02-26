@@ -2,7 +2,6 @@ package com.br.migrationTool.useCase;
 
 import com.br.migrationTool.data.connection.ConnetionOracleJDBC;
 import com.br.migrationTool.data.dao.TableReferencesDao;
-import com.br.migrationTool.dto.ChildrenTableDto;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
 import com.br.migrationTool.dto.TableDataDto;
@@ -15,43 +14,45 @@ import java.util.List;
 public class MigrationUseCase {
     public void start() throws SQLException {
         String initialTableName = "ACCOUNT";
+        String starRange = "1";
+        String endRange = "8";
 
+        addInitalTableToMigrationListByRange(initialTableName, starRange, endRange);
+
+        createMigrationList();
+    }
+
+    private void addInitalTableToMigrationListByRange(String initialTableName, String starRange, String endRange) throws SQLException {
         List<String> allNamesColumnsInitialTable = TableReferencesDao.getAllNamesColumnsTableFromTableName(initialTableName, ConnetionOracleJDBC.getConnectionHomolog());
 
         TableDataDto tableDataDto = TableDataDto.builder()
                 .tableName(initialTableName)
-                .primaryKeyName(allNamesColumnsInitialTable.get(0))
-                .foreingKeyName(allNamesColumnsInitialTable.get(0))
+                .primaryKeyName(allNamesColumnsInitialTable.stream().findFirst().orElse(""))
+                .foreingKeyName(allNamesColumnsInitialTable.stream().findFirst().orElse(""))
                 .build();
-
-        ChildrenTableDto childrenTableDto = new ChildrenTableDto();
-        childrenTableDto.setTableName(initialTableName);
-        childrenTableDto.setPrimaryKeyName(allNamesColumnsInitialTable.get(0));
-        childrenTableDto.setForeingKeyName(allNamesColumnsInitialTable.get(0));
 
 
         MigrationDto migrationDto = MigrationDto.builder()
                 .tableName(initialTableName)
                 .tableDataDto(tableDataDto)
-                .childrenTableDto(childrenTableDto)
                 .isSearchedReference(false)
                 .build();
 
-        List<String> primaryKeysExistingInHomolog = TableReferencesDao.getPrimaryKeys(
+        List<String> primaryKeysExistingInHomolog = TableReferencesDao.getPrimaryKeysByRange(
                 migrationDto.getTableName(),
                 migrationDto.getTableDataDto().getPrimaryKeyName(),
                 migrationDto.getTableDataDto().getPrimaryKeyName(),
-                "1",
-                "2",
+                starRange,
+                endRange,
                 ConnetionOracleJDBC.getConnectionHomolog()
         );
 
-        List<String> primaryKeysExistingInProd = TableReferencesDao.getPrimaryKeys(
+        List<String> primaryKeysExistingInProd = TableReferencesDao.getPrimaryKeysByRange(
                 migrationDto.getTableName(),
                 migrationDto.getTableDataDto().getPrimaryKeyName(),
                 migrationDto.getTableDataDto().getPrimaryKeyName(),
-                "1",
-                "2",
+                starRange,
+                endRange,
                 ConnetionOracleJDBC.getConnectionProd()
         );
 
@@ -59,14 +60,11 @@ public class MigrationUseCase {
 
         MigrationVo.setListMigration(migrationDto);
         MigrationVo.removePrimaryKeysListMigrationByTableName(migrationDto.getTableName(), primaryKeysExistingInHomolog);
-
-        createMigration();
     }
 
-    private void createMigration() throws SQLException {
+    private void createMigrationList() throws SQLException {
 
-        int count = 0;
-        while (count < 50) {
+        while (MigrationVo.isAllReferencesSearched()) {
 
             List<MigrationDto> migrationsDto = MigrationVo.cloneMigration();
 
@@ -82,11 +80,11 @@ public class MigrationUseCase {
                     if (parentTableDtos.size() > 0) {
                         addParentsToMigrationList(parentTableDtos, migrationDto);
                         MigrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
+                    } else {
+                        MigrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
                     }
                 }
             }
-
-            count++;
         }
 
     }
@@ -106,8 +104,6 @@ public class MigrationUseCase {
                     parentTableDto,
                     ConnetionOracleJDBC.getConnectionHomolog()
             );
-
-
 
             TableDataDto newTableDataDto = TableDataDto.builder()
                     .tableName(parentTableDto.getTableName())
