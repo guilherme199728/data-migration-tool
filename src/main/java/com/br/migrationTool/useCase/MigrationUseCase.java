@@ -1,6 +1,5 @@
 package com.br.migrationTool.useCase;
 
-import com.br.migrationTool.data.connection.ConnetionOracleJDBC;
 import com.br.migrationTool.data.dao.TableReferencesDao;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;

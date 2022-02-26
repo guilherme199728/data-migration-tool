@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ConnetionOracleJDBC {
+public class ConnectionOracleJDBC {
 
     private static HikariDataSource dataSourceProd;
     private static HikariDataSource dataSourceHomolog;

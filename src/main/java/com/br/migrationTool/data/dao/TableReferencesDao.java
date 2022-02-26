@@ -1,6 +1,6 @@
 package com.br.migrationTool.data.dao;
 
-import com.br.migrationTool.data.connection.ConnetionOracleJDBC;
+import com.br.migrationTool.data.connection.ConnectionOracleJDBC;
 import com.br.migrationTool.dto.ChildrenTableDto;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
@@ -8,13 +8,11 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class TableReferencesDao {
 
@@ -39,7 +37,7 @@ public class TableReferencesDao {
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName};
 
-        return runner.query(ConnetionOracleJDBC.getConnection(isProd), sql, rsh, params);
+        return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
     public static List<ChildrenTableDto> getChildrenTablesFromConstraint(
@@ -65,7 +63,7 @@ public class TableReferencesDao {
         ResultSetHandler<List<ChildrenTableDto>> rsh = new BeanListHandler<>(ChildrenTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName};
 
-        return runner.query(ConnetionOracleJDBC.getConnection(isProd), sql, rsh, params);
+        return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
     public static String getPrimaryKeyNameFromConstraint(
@@ -80,7 +78,7 @@ public class TableReferencesDao {
         "AND C.CONSTRAINT_TYPE = 'P' " +
         "AND C.TABLE_NAME = ? ";
 
-        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, owner);
         ps.setString(2, tableName);
         ResultSet rs = ps.executeQuery();
@@ -101,7 +99,7 @@ public class TableReferencesDao {
         "FROM USER_TAB_COLUMNS WHERE " +
         "TABLE_NAME = ? ";
 
-        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, tableName);
         ResultSet rs = ps.executeQuery();
 
@@ -139,7 +137,7 @@ public class TableReferencesDao {
 
         );
 
-        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
+        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
         ResultSet rs = ps.executeQuery();
 
         List<String> allPrimaryKeys = new ArrayList<>();
@@ -156,7 +154,7 @@ public class TableReferencesDao {
 
         String sql = String.format("SELECT %s FROM %s WHERE %s BETWEEN %s AND %s", primaryKeyName, tableName, whereColum, starRange, endRange);
 
-        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
         List<String> allNamesColumnsTable = new ArrayList<>();
