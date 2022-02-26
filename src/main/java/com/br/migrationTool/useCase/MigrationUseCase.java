@@ -1,5 +1,6 @@
 package com.br.migrationTool.useCase;
 
+import com.br.migrationTool.data.dao.MigrationDao;
 import com.br.migrationTool.data.dao.TableReferencesDao;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
@@ -18,7 +19,7 @@ public class MigrationUseCase {
 
         addInitialTableToMigrationListByRange(initialTableName, starRange, endRange);
         createMigrationList();
-        executeMigration();
+        MigrationDao.executeMigration();
     }
 
     private void addInitialTableToMigrationListByRange(String initialTableName, String starRange, String endRange) throws SQLException {
@@ -115,9 +116,5 @@ public class MigrationUseCase {
             MigrationVo.removePrimaryKeysListMigrationByTableName(parentTableDto.getTableName(), primaryKeysHomolog);
 
         }
-    }
-
-    private void executeMigration() {
-
     }
 }
