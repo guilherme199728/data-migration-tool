@@ -10,13 +10,23 @@ public class ConnetionOracleJDBC {
 
     private static HikariDataSource dataSourceProd;
     private static HikariDataSource dataSourceHomolog;
+    private static Connection connectionProd;
+    private static Connection connectionHomolog;
 
     public static Connection getConnectionProd() throws SQLException {
-        return dataSourceProd.getConnection();
+        if (connectionProd == null) {
+            connectionProd = dataSourceProd.getConnection();
+        }
+
+        return connectionProd;
     }
 
     public static Connection getConnectionHomolog() throws SQLException {
-        return dataSourceHomolog.getConnection();
+        if (connectionHomolog == null) {
+            connectionHomolog = dataSourceHomolog.getConnection();
+        }
+
+        return connectionHomolog;
     }
 
     public static void initDatabaseConnectionPool() {
