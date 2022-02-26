@@ -80,7 +80,7 @@ public class MigrationUseCase {
                     );
 
                     if (parentTableDtos.size() > 0) {
-                        addParentsToMigrationList(parentTableDtos, migrationDto.getTableDataDto());
+                        addParentsToMigrationList(parentTableDtos, migrationDto);
                         MigrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
                     }
                 }
@@ -91,25 +91,19 @@ public class MigrationUseCase {
 
     }
 
-    private void addParentsToMigrationList(List<ParentTableDto> parentTableDtos, TableDataDto tableDataDto) throws SQLException {
+    private void addParentsToMigrationList(List<ParentTableDto> parentTableDtos, MigrationDto migrationDto) throws SQLException {
 
         for (ParentTableDto parentTableDto : parentTableDtos) {
 
-            List<String> primaryKeysProd = TableReferencesDao.getPrimaryKeys(
-                    tableDataDto.getTableName(),
-                    parentTableDto.getForeingKeyName(),
-                    tableDataDto.getPrimaryKeyName(),
-                    "1",
-                    "2",
+            List<String> primaryKeysProd = TableReferencesDao.getPrimaryKeysByParentTable(
+                    migrationDto,
+                    parentTableDto,
                     ConnetionOracleJDBC.getConnectionProd()
             );
 
-            List<String> primaryKeysHomolog = TableReferencesDao.getPrimaryKeys(
-                    tableDataDto.getTableName(),
-                    parentTableDto.getForeingKeyName(),
-                    tableDataDto.getPrimaryKeyName(),
-                    "1",
-                    "2",
+            List<String> primaryKeysHomolog = TableReferencesDao.getPrimaryKeysByParentTable(
+                    migrationDto,
+                    parentTableDto,
                     ConnetionOracleJDBC.getConnectionHomolog()
             );
 

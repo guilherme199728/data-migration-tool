@@ -1,6 +1,7 @@
 package com.br.migrationTool.data.dao;
 
 import com.br.migrationTool.dto.ChildrenTableDto;
+import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
 import com.br.migrationTool.dto.TableDataDto;
 import org.apache.commons.dbutils.QueryRunner;
@@ -121,6 +122,37 @@ public class TableReferencesDao {
         return allNamesColunsTable;
     }
 
+    public static List<String> getPrimaryKeysByParentTable(MigrationDto migrationDto, ParentTableDto parentTableDto, Connection connection) throws SQLException {
+
+        int offSet = 950;
+
+        String sql = "SELECT A.%s FROM %s A " +
+        "JOIN %s B on " +
+        "A.%s = B.%s " +
+        "WHERE A.%s IN ";
+
+        sql = String.format(
+                sql,
+                parentTableDto.getForeingKeyName(),
+                migrationDto.getTableName(),
+                parentTableDto.getTableName(),
+                parentTableDto.getForeingKeyName(),
+                parentTableDto.getPrimaryKeyName(),
+                migrationDto.getTableDataDto().getPrimaryKeyName()
+
+        ) + getPrimaryKeysConcatenatedByOffSet(migrationDto.getTableDataDto().getForeingKeyName(), migrationDto.getPrimaryKeys(), offSet);
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        List<String> allPrimaryKeys = new ArrayList<>();
+        while (rs.next()) {
+            allPrimaryKeys.add(rs.getString(parentTableDto.getForeingKeyName()));
+        }
+
+        return allPrimaryKeys;
+    }
+
     private static String getPrimaryKeys(String tableName, String primaryKeyName, String whereColum) {
         // TODO : Terminar implementação
         List<String> primaryKeys = new ArrayList<>();
@@ -160,7 +192,7 @@ public class TableReferencesDao {
         int index = 1;
 
         for (String primaryKey : primaryKeys) {
-            primaryKeysConcat.append(primaryKey);
+            primaryKeysConcat.append("'").append(primaryKey).append("'");
             if(nextOffSet == index){
                 primaryKeysConcat.append("/");
                 nextOffSet = nextOffSet + offSet;
