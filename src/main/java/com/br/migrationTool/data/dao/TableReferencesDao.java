@@ -2,8 +2,10 @@ package com.br.migrationTool.data.dao;
 
 import com.br.migrationTool.dto.ChildrenTableDto;
 import com.br.migrationTool.dto.ParentTableDto;
+import com.br.migrationTool.dto.TableDataDto;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.Connection;
@@ -15,6 +17,22 @@ import java.util.List;
 import java.util.Random;
 
 public class TableReferencesDao {
+
+    public static TableDataDto getTableData(String owner, String tableName, Connection connection) throws SQLException {
+        String sql = "SELECT TABLE_NAME AS TABLENAME, COLUMN_NAME AS PRIMARYKEY, COLUMN_NAME AS FOREINGKEY " +
+        "FROM ALL_CONS_COLUMNS " +
+        "WHERE OWNER = ? " +
+        "AND OWNER = ? " +
+        "AND TABLE_NAME = ? " +
+        "AND COLUMN_NAME LIKE %" + "?" + "% " +
+        "AND ROWNUM <= 1 ";
+
+        QueryRunner runner = new QueryRunner();
+        ResultSetHandler<TableDataDto> rsh = new BeanHandler<>(TableDataDto.class);
+        Object [] params = new Object[]{owner, owner, tableName, tableName};
+
+        return runner.query(connection, sql, rsh, params);
+    }
 
     public static List<ParentTableDto> getParentTablesFromConstrant(String owner, String tableName, Connection connection) throws SQLException {
 

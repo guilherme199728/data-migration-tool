@@ -1,6 +1,9 @@
 package com.br.migrationTool.vo;
 
-import lombok.*;
+import com.br.migrationTool.dto.MigrationDto;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +13,9 @@ import java.util.stream.Collectors;
 @Setter
 @Builder
 public class MigrationVo {
+    private static List<MigrationDto> listMigrationVo = new ArrayList<>();
 
-    private String tableName;
-    private List<String> primaryKeys;
-    private static List<MigrationVo> listMigrationVo = new ArrayList<>();
-
-    public static List<MigrationVo> getListMigration() {
+    public static List<MigrationDto> getListMigration() {
         return listMigrationVo;
     }
 
@@ -24,38 +24,40 @@ public class MigrationVo {
     }
 
     public static List<String> getAllTableInMigrationList() {
-        return MigrationVo.getListMigration().stream().map(MigrationVo::getTableName)
+        return MigrationVo.getListMigration().stream().map(MigrationDto::getTableName)
                 .collect(Collectors.toList());
     }
 
-    public static MigrationVo getMigrationByTableName(String tableName) {
+    public static MigrationDto getMigrationByTableName(String tableName) {
         return listMigrationVo.stream().filter(migrationVo -> migrationVo.getTableName().equals(tableName)).findAny().orElse(null);
     }
 
     public static void removePrimaryKeysListMigrationByTableName(String tableName, List<String> primaryKeys) {
-        MigrationVo migrationVo = getMigrationByTableName(tableName);
+        MigrationDto migrationDto = getMigrationByTableName(tableName);
 
-        primaryKeys.forEach(primaryKeyForRemove -> migrationVo.getPrimaryKeys().remove(primaryKeyForRemove));
+        primaryKeys.forEach(primaryKeyForRemove -> migrationDto.getPrimaryKeys().remove(primaryKeyForRemove));
 
-        if(migrationVo.getPrimaryKeys().size() == 0) {
-            MigrationVo.getListMigration().remove(migrationVo);
+        if(migrationDto.getPrimaryKeys().size() == 0) {
+            MigrationVo.getListMigration().remove(migrationDto);
         }
 
     }
 
-    public static void setListMigration(String tableName, List<String> primaryKeys) {
-        MigrationVo migrationVo = getMigrationByTableName(tableName);
-        if(migrationVo != null) {
-            for (String primaryKey : primaryKeys) {
-                if (!migrationVo.getPrimaryKeys().contains(primaryKey)) {
-                    migrationVo.getPrimaryKeys().add(primaryKey);
+    public static void setListMigration(MigrationDto migrationDto) {
+        MigrationDto migrationDtoExisting = getMigrationByTableName(migrationDto.getTableName());
+        if(migrationDtoExisting != null) {
+            for (String primaryKey : migrationDto.getPrimaryKeys()) {
+                if (!migrationDtoExisting.getPrimaryKeys().contains(primaryKey)) {
+                    migrationDtoExisting.getPrimaryKeys().add(primaryKey);
                 }
             }
         } else {
             listMigrationVo.add(
-                MigrationVo.builder()
-                .tableName(tableName)
-                .primaryKeys(primaryKeys.stream().distinct().collect(Collectors.toList()))
+                 MigrationDto.builder()
+                .tableName(migrationDto.getTableName())
+                .primaryKeys(migrationDto.getPrimaryKeys().stream().distinct().collect(Collectors.toList()))
+                .childrenTableDto(migrationDto.getChildrenTableDto())
+                .tableDataDto(migrationDto.getTableDataDto())
                 .build()
             );
         }

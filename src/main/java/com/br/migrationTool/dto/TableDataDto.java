@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ChildrenTableDto {
+public class TableDataDto {
     String tableName;
     String primaryKeyName;
     String foreingKeyName;
