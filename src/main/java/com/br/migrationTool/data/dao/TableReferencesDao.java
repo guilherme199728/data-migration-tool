@@ -4,6 +4,7 @@ import com.br.migrationTool.data.connection.ConnectionOracleJDBC;
 import com.br.migrationTool.dto.ChildrenTableDto;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
+import com.br.migrationTool.propertie.PropertiesLoaderImpl;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -17,7 +18,7 @@ import java.util.List;
 public class TableReferencesDao {
 
     public static List<ParentTableDto> getParentTablesFromConstraint(
-            String owner, String tableName, boolean isProd
+            String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = "SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, A.COLUMN_NAME AS FOREINGKEYNAME " +
@@ -33,6 +34,8 @@ public class TableReferencesDao {
         "AND B.OWNER = ? " +
         "AND A.TABLE_NAME = ? ";
 
+        String owner = getOwner(isProd);
+
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName};
@@ -41,7 +44,7 @@ public class TableReferencesDao {
     }
 
     public static List<ChildrenTableDto> getChildrenTablesFromConstraint(
-            String owner, String tableName, boolean isProd
+            String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = "SELECT C.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, B2.COLUMN_NAME AS FOREINGKEYNAME " +
@@ -59,6 +62,8 @@ public class TableReferencesDao {
         "AND B.OWNER = ? " +
         "AND A.TABLE_NAME = ? ";
 
+        String owner = getOwner(isProd);
+
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ChildrenTableDto>> rsh = new BeanListHandler<>(ChildrenTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName};
@@ -67,7 +72,7 @@ public class TableReferencesDao {
     }
 
     public static String getPrimaryKeyNameFromConstraint(
-            String owner, String tableName, boolean isProd
+            String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = "SELECT A.COLUMN_NAME " +
@@ -77,6 +82,8 @@ public class TableReferencesDao {
         "WHERE C.OWNER = ? " +
         "AND C.CONSTRAINT_TYPE = 'P' " +
         "AND C.TABLE_NAME = ? ";
+
+        String owner = getOwner(isProd);
 
         PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, owner);
@@ -203,5 +210,13 @@ public class TableReferencesDao {
         }
 
         return List.of(primaryKeysConcat.toString().split("/"));
+    }
+
+    private static String getOwner(boolean isProd) {
+        if (isProd) {
+            return PropertiesLoaderImpl.getValue("database.prod.owner");
+        } else {
+            return PropertiesLoaderImpl.getValue("database.homolog.owner");
+        }
     }
 }

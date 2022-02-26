@@ -71,7 +71,6 @@ public class MigrationUseCase {
 
                 if (!migrationDto.isSearchedReference()) {
                     List<ParentTableDto> parentTableDtos = TableReferencesDao.getParentTablesFromConstraint(
-                            PropertiesLoaderImpl.getValue("database.homolog.owner"),
                             migrationDto.getTableName(),
                             true
                     );
