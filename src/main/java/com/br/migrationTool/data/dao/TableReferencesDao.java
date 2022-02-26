@@ -1,5 +1,6 @@
 package com.br.migrationTool.data.dao;
 
+import com.br.migrationTool.data.connection.ConnetionOracleJDBC;
 import com.br.migrationTool.dto.ChildrenTableDto;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
@@ -17,7 +18,9 @@ import java.util.Random;
 
 public class TableReferencesDao {
 
-    public static List<ParentTableDto> getParentTablesFromConstraint(String owner, String tableName, Connection connection) throws SQLException {
+    public static List<ParentTableDto> getParentTablesFromConstraint(
+            String owner, String tableName, boolean isProd
+    ) throws SQLException {
 
         String sql = "SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, A.COLUMN_NAME AS FOREINGKEYNAME " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -36,10 +39,12 @@ public class TableReferencesDao {
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName};
 
-        return runner.query(connection, sql, rsh, params);
+        return runner.query(ConnetionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
-    public static List<ChildrenTableDto> getChildrenTablesFromConstraint(String owner, String tableName, Connection connection) throws SQLException {
+    public static List<ChildrenTableDto> getChildrenTablesFromConstraint(
+            String owner, String tableName, boolean isProd
+    ) throws SQLException {
 
         String sql = "SELECT C.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, B2.COLUMN_NAME AS FOREINGKEYNAME " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -60,10 +65,12 @@ public class TableReferencesDao {
         ResultSetHandler<List<ChildrenTableDto>> rsh = new BeanListHandler<>(ChildrenTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName};
 
-        return runner.query(connection, sql, rsh, params);
+        return runner.query(ConnetionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
-    public static String getPrimaryKeyNameFromConstraint(String owner, String tableName, Connection connection) throws SQLException {
+    public static String getPrimaryKeyNameFromConstraint(
+            String owner, String tableName, boolean isProd
+    ) throws SQLException {
 
         String sql = "SELECT A.COLUMN_NAME " +
         "FROM ALL_CONS_COLUMNS A " +
@@ -73,7 +80,7 @@ public class TableReferencesDao {
         "AND C.CONSTRAINT_TYPE = 'P' " +
         "AND C.TABLE_NAME = ? ";
 
-        PreparedStatement ps = connection.prepareStatement(sql);
+        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, owner);
         ps.setString(2, tableName);
         ResultSet rs = ps.executeQuery();
@@ -86,13 +93,15 @@ public class TableReferencesDao {
         return primaryKeyNames;
     }
 
-    public static List<String> getAllNamesColumnsTableFromTableName(String tableName, Connection connection) throws SQLException {
+    public static List<String> getAllNamesColumnsTableFromTableName(
+            String tableName, boolean isProd
+    ) throws SQLException {
 
         String sql = "SELECT COLUMN_NAME, DATA_TYPE " +
         "FROM USER_TAB_COLUMNS WHERE " +
         "TABLE_NAME = ? ";
 
-        PreparedStatement ps = connection.prepareStatement(sql);
+        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, tableName);
         ResultSet rs = ps.executeQuery();
 
@@ -104,16 +113,22 @@ public class TableReferencesDao {
         return allNamesColunsTable;
     }
 
-    public static List<String> getPrimaryKeysByParentTable(MigrationDto migrationDto, ParentTableDto parentTableDto, Connection connection) throws SQLException {
+    public static List<String> getPrimaryKeysByParentTable(
+            MigrationDto migrationDto, ParentTableDto parentTableDto, boolean isProd
+    ) throws SQLException {
 
         int offSet = 950;
 
         String sql = "SELECT A.%s FROM %s A " +
-        "JOIN %s B on " +
-        "A.%s = B.%s " +
-        "WHERE A.%s IN ";
+                "JOIN %s B on " +
+                "A.%s = B.%s " + "WHERE A.%s IN " +
+                getPrimaryKeysConcatenatedByOffSet(
+                        migrationDto.getTableDataDto().getForeingKeyName(),
+                        migrationDto.getPrimaryKeys(),
+                        offSet
+                );
 
-        sql = String.format(
+        String sqlBuilt = String.format(
                 sql,
                 parentTableDto.getForeingKeyName(),
                 migrationDto.getTableName(),
@@ -122,9 +137,9 @@ public class TableReferencesDao {
                 parentTableDto.getPrimaryKeyName(),
                 migrationDto.getTableDataDto().getPrimaryKeyName()
 
-        ) + getPrimaryKeysConcatenatedByOffSet(migrationDto.getTableDataDto().getForeingKeyName(), migrationDto.getPrimaryKeys(), offSet);
+        );
 
-        PreparedStatement ps = connection.prepareStatement(sql);
+        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
         ResultSet rs = ps.executeQuery();
 
         List<String> allPrimaryKeys = new ArrayList<>();
@@ -135,11 +150,13 @@ public class TableReferencesDao {
         return allPrimaryKeys;
     }
 
-    public static List<String> getPrimaryKeysByRange(String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, Connection connection) throws SQLException {
+    public static List<String> getPrimaryKeysByRange(
+            String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, boolean isProd
+    ) throws SQLException {
 
         String sql = String.format("SELECT %s FROM %s WHERE %s BETWEEN %s AND %s", primaryKeyName, tableName, whereColum, starRange, endRange);
 
-        PreparedStatement ps = connection.prepareStatement(sql);
+        PreparedStatement ps = ConnetionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
         List<String> allNamesColumnsTable = new ArrayList<>();

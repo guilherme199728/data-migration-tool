@@ -23,7 +23,7 @@ public class MigrationUseCase {
     }
 
     private void addInitialTableToMigrationListByRange(String initialTableName, String starRange, String endRange) throws SQLException {
-        List<String> allNamesColumnsInitialTable = TableReferencesDao.getAllNamesColumnsTableFromTableName(initialTableName, ConnetionOracleJDBC.getConnectionHomolog());
+        List<String> allNamesColumnsInitialTable = TableReferencesDao.getAllNamesColumnsTableFromTableName(initialTableName, false);
 
         TableDataDto tableDataDto = TableDataDto.builder()
                 .tableName(initialTableName)
@@ -44,7 +44,7 @@ public class MigrationUseCase {
                 migrationDto.getTableDataDto().getPrimaryKeyName(),
                 starRange,
                 endRange,
-                ConnetionOracleJDBC.getConnectionHomolog()
+                false
         );
 
         List<String> primaryKeysExistingInProd = TableReferencesDao.getPrimaryKeysByRange(
@@ -53,7 +53,7 @@ public class MigrationUseCase {
                 migrationDto.getTableDataDto().getPrimaryKeyName(),
                 starRange,
                 endRange,
-                ConnetionOracleJDBC.getConnectionProd()
+                true
         );
 
         migrationDto.setPrimaryKeys(primaryKeysExistingInProd);
@@ -74,7 +74,7 @@ public class MigrationUseCase {
                     List<ParentTableDto> parentTableDtos = TableReferencesDao.getParentTablesFromConstraint(
                             PropertiesLoaderImpl.getValue("database.homolog.owner"),
                             migrationDto.getTableName(),
-                            ConnetionOracleJDBC.getConnectionProd()
+                            true
                     );
 
                     if (parentTableDtos.size() > 0) {
@@ -96,13 +96,13 @@ public class MigrationUseCase {
             List<String> primaryKeysProd = TableReferencesDao.getPrimaryKeysByParentTable(
                     migrationDto,
                     parentTableDto,
-                    ConnetionOracleJDBC.getConnectionProd()
+                    true
             );
 
             List<String> primaryKeysHomolog = TableReferencesDao.getPrimaryKeysByParentTable(
                     migrationDto,
                     parentTableDto,
-                    ConnetionOracleJDBC.getConnectionHomolog()
+                    false
             );
 
             TableDataDto newTableDataDto = TableDataDto.builder()

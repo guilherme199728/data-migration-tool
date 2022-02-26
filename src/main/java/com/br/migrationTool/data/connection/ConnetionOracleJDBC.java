@@ -13,7 +13,11 @@ public class ConnetionOracleJDBC {
     private static Connection connectionProd;
     private static Connection connectionHomolog;
 
-    public static Connection getConnectionProd() throws SQLException {
+    public static Connection getConnection(boolean isProd) throws SQLException {
+        return isProd ? getConnectionProd() : getConnectionHomolog();
+    }
+
+    private static Connection getConnectionProd() throws SQLException {
         if (connectionProd == null) {
             connectionProd = dataSourceProd.getConnection();
         }
@@ -21,7 +25,7 @@ public class ConnetionOracleJDBC {
         return connectionProd;
     }
 
-    public static Connection getConnectionHomolog() throws SQLException {
+    private static Connection getConnectionHomolog() throws SQLException {
         if (connectionHomolog == null) {
             connectionHomolog = dataSourceHomolog.getConnection();
         }
