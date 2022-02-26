@@ -71,8 +71,7 @@ public class MigrationUseCase {
 
                 if (!migrationDto.isSearchedReference()) {
                     List<ParentTableDto> parentTableDtos = TableReferencesDao.getParentTablesFromConstraint(
-                            migrationDto.getTableName(),
-                            true
+                            migrationDto.getTableName(), true
                     );
 
                     if (parentTableDtos.size() > 0) {
@@ -92,15 +91,11 @@ public class MigrationUseCase {
         for (ParentTableDto parentTableDto : parentTableDtos) {
 
             List<String> primaryKeysProd = TableReferencesDao.getPrimaryKeysByParentTable(
-                    migrationDto,
-                    parentTableDto,
-                    true
+                    migrationDto, parentTableDto, true
             );
 
             List<String> primaryKeysHomolog = TableReferencesDao.getPrimaryKeysByParentTable(
-                    migrationDto,
-                    parentTableDto,
-                    false
+                    migrationDto, parentTableDto, false
             );
 
             TableDataDto newTableDataDto = TableDataDto.builder()
