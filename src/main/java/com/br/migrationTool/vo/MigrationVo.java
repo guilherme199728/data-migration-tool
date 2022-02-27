@@ -57,7 +57,7 @@ public class MigrationVo {
                  MigrationDto.builder()
                 .tableName(migrationDto.getTableName())
                 .primaryKeys(migrationDto.getPrimaryKeys().stream().distinct().collect(Collectors.toList()))
-                .tableDataDto(migrationDto.getTableDataDto())
+                .tableStructureDto(migrationDto.getTableStructureDto())
                 .build()
             );
         }

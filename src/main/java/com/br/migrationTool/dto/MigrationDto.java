@@ -12,6 +12,6 @@ import java.util.List;
 public class MigrationDto {
     private String tableName;
     private List<String> primaryKeys;
-    private TableDataDto tableDataDto;
+    private TableStructureDto tableStructureDto;
     private boolean isSearchedReference;
 }

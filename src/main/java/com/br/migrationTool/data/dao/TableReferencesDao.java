@@ -11,8 +11,10 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TableReferencesDao {
@@ -102,7 +104,7 @@ public class TableReferencesDao {
             String tableName, boolean isProd
     ) throws SQLException {
 
-        String sql = "SELECT COLUMN_NAME, DATA_TYPE " +
+        String sql = "SELECT COLUMN_NAME " +
         "FROM USER_TAB_COLUMNS WHERE " +
         "TABLE_NAME = ? ";
 
@@ -118,6 +120,28 @@ public class TableReferencesDao {
         return allNamesColunsTable;
     }
 
+    public static HashMap<String, String> getAllNamesAndTypeColumnsTableFromTableName(
+            String tableName, boolean isProd
+    ) throws SQLException {
+
+        String sql = "SELECT COLUMN_NAME, DATA_TYPE " +
+                "FROM USER_TAB_COLUMNS WHERE " +
+                "TABLE_NAME = ? ";
+
+        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        ps.setString(1, tableName);
+        ResultSet rs = ps.executeQuery();
+        ResultSetMetaData md = rs.getMetaData();
+
+        HashMap<String, String> allNamesColumnsTable = new HashMap<>();
+
+        while (rs.next()) {
+            allNamesColumnsTable.put(rs.getString(md.getColumnName(1)), rs.getString(md.getColumnName(2)));
+        }
+
+        return allNamesColumnsTable;
+    }
+
     public static List<String> getPrimaryKeysByParentTable(
             MigrationDto migrationDto, ParentTableDto parentTableDto, boolean isProd
     ) throws SQLException {
@@ -128,7 +152,7 @@ public class TableReferencesDao {
                 "JOIN %s B on " +
                 "A.%s = B.%s " + "WHERE A.%s IN " +
                 getPrimaryKeysConcatenatedByOffSet(
-                        migrationDto.getTableDataDto().getForeingKeyName(),
+                        migrationDto.getTableStructureDto().getForeingKeyName(),
                         migrationDto.getPrimaryKeys(),
                         offSet
                 );
@@ -140,7 +164,7 @@ public class TableReferencesDao {
                 parentTableDto.getTableName(),
                 parentTableDto.getForeingKeyName(),
                 parentTableDto.getPrimaryKeyName(),
-                migrationDto.getTableDataDto().getPrimaryKeyName()
+                migrationDto.getTableStructureDto().getPrimaryKeyName()
 
         );
 

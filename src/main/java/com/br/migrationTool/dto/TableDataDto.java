@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class TableDataDto {
-    String tableName;
-    String primaryKeyName;
-    String foreingKeyName;
+    String fieldName;
+    String filedData;
+    String filedType;
 }

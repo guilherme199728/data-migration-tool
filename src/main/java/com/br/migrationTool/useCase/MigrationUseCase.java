@@ -4,8 +4,7 @@ import com.br.migrationTool.data.dao.MigrationDao;
 import com.br.migrationTool.data.dao.TableReferencesDao;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
-import com.br.migrationTool.dto.TableDataDto;
-import com.br.migrationTool.propertie.PropertiesLoaderImpl;
+import com.br.migrationTool.dto.TableStructureDto;
 import com.br.migrationTool.vo.MigrationVo;
 
 import java.sql.SQLException;
@@ -25,7 +24,7 @@ public class MigrationUseCase {
     private void addInitialTableToMigrationListByRange(String initialTableName, String starRange, String endRange) throws SQLException {
         List<String> allNamesColumnsInitialTable = TableReferencesDao.getAllNamesColumnsTableFromTableName(initialTableName, false);
 
-        TableDataDto tableDataDto = TableDataDto.builder()
+        TableStructureDto tableStructureDto = TableStructureDto.builder()
                 .tableName(initialTableName)
                 .primaryKeyName(allNamesColumnsInitialTable.stream().findFirst().orElse(""))
                 .foreingKeyName(allNamesColumnsInitialTable.stream().findFirst().orElse(""))
@@ -34,14 +33,14 @@ public class MigrationUseCase {
 
         MigrationDto migrationDto = MigrationDto.builder()
                 .tableName(initialTableName)
-                .tableDataDto(tableDataDto)
+                .tableStructureDto(tableStructureDto)
                 .isSearchedReference(false)
                 .build();
 
         List<String> primaryKeysExistingInHomolog = TableReferencesDao.getPrimaryKeysByRange(
                 migrationDto.getTableName(),
-                migrationDto.getTableDataDto().getPrimaryKeyName(),
-                migrationDto.getTableDataDto().getPrimaryKeyName(),
+                migrationDto.getTableStructureDto().getPrimaryKeyName(),
+                migrationDto.getTableStructureDto().getPrimaryKeyName(),
                 starRange,
                 endRange,
                 false
@@ -49,8 +48,8 @@ public class MigrationUseCase {
 
         List<String> primaryKeysExistingInProd = TableReferencesDao.getPrimaryKeysByRange(
                 migrationDto.getTableName(),
-                migrationDto.getTableDataDto().getPrimaryKeyName(),
-                migrationDto.getTableDataDto().getPrimaryKeyName(),
+                migrationDto.getTableStructureDto().getPrimaryKeyName(),
+                migrationDto.getTableStructureDto().getPrimaryKeyName(),
                 starRange,
                 endRange,
                 true
@@ -99,7 +98,7 @@ public class MigrationUseCase {
                     migrationDto, parentTableDto, false
             );
 
-            TableDataDto newTableDataDto = TableDataDto.builder()
+            TableStructureDto newTableStructureDto = TableStructureDto.builder()
                     .tableName(parentTableDto.getTableName())
                     .primaryKeyName(parentTableDto.getPrimaryKeyName())
                     .foreingKeyName(parentTableDto.getForeingKeyName())
@@ -107,7 +106,7 @@ public class MigrationUseCase {
 
             MigrationDto newMigrationDto = MigrationDto.builder()
                     .tableName(parentTableDto.getTableName())
-                    .tableDataDto(newTableDataDto)
+                    .tableStructureDto(newTableStructureDto)
                     .primaryKeys(primaryKeysProd)
                     .isSearchedReference(false)
                     .build();
