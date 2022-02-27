@@ -34,13 +34,14 @@ public class TableReferencesDao {
         "WHERE C.CONSTRAINT_TYPE = 'R' " +
         "AND A.OWNER = ? " +
         "AND B.OWNER = ? " +
-        "AND A.TABLE_NAME = ? ";
+        "AND A.TABLE_NAME = ? " +
+        "AND B.TABLE_NAME <> ? ";
 
         String owner = getOwner(isProd);
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
-        Object [] params = new Object[]{owner, owner, tableName};
+        Object [] params = new Object[]{owner, owner, tableName, tableName};
 
         return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }

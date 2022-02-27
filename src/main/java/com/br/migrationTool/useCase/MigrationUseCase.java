@@ -13,8 +13,8 @@ import java.util.List;
 public class MigrationUseCase {
     public void start() throws SQLException {
         String initialTableName = "ACCOUNT";
-        String starRange = "1";
-        String endRange = "8";
+        String starRange = "106";
+        String endRange = "116";
 
         addInitialTableToMigrationListByRange(initialTableName, starRange, endRange);
         createMigrationList();
