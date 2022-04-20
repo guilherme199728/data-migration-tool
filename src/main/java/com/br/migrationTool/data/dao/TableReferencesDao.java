@@ -175,9 +175,9 @@ public class TableReferencesDao {
 
         int offSet = 950;
 
-        String sql = "SELECT A.%s FROM %s A " +
-                "JOIN %s B on " +
-                "A.%s = B.%s " + "WHERE A.%s IN " +
+        String sql = "SELECT A.%s FROM %s.%s A " +
+                "JOIN %s.%s B on " +
+                "A.%s = B.%s WHERE A.%s IN " +
                 getPrimaryKeysConcatenatedByOffSet(
                         parentTableDto.getForeingKeyName(),
                         migrationDto.getPrimaryKeys(),
@@ -187,7 +187,9 @@ public class TableReferencesDao {
         String sqlBuilt = String.format(
                 sql,
                 parentTableDto.getForeingKeyName(),
+                getOwner(isProd),
                 migrationDto.getTableName(),
+                getOwner(isProd),
                 parentTableDto.getTableName(),
                 parentTableDto.getForeingKeyName(),
                 parentTableDto.getPrimaryKeyName(),

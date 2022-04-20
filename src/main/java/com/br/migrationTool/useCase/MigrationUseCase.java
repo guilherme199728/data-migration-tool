@@ -13,8 +13,8 @@ import java.util.List;
 
 public class MigrationUseCase {
     public void start() throws SQLException {
-        String initialTableName = "T_REFERENCIAPRODUTO";
-        List<String> list = Arrays.asList(new String[] { "548857" });
+        String initialTableName = "T_VENDA";
+        List<String> list = Arrays.asList(new String[] { "23257752" });
 
         addInitialTableToMigrationListByRange(initialTableName, list);
         createMigrationList();
@@ -85,23 +85,20 @@ public class MigrationUseCase {
                     migrationDto, parentTableDto, true
             );
 
-            List<String> primaryKeysHomolog = TableReferencesDao.getPrimaryKeysByParentTable(
-                    migrationDto, parentTableDto, false
-            );
+            if (!primaryKeysProd.isEmpty()) {
+                TableStructureDto newTableStructureDto = new TableStructureDto();
+                newTableStructureDto.setTableName(parentTableDto.getTableName());
+                newTableStructureDto.setPrimaryKeyName(parentTableDto.getPrimaryKeyName());
 
-            TableStructureDto newTableStructureDto = new TableStructureDto();
-            newTableStructureDto.setTableName(parentTableDto.getTableName());
-            newTableStructureDto.setPrimaryKeyName(parentTableDto.getPrimaryKeyName());
+                MigrationDto newMigrationDto = MigrationDto.builder()
+                        .tableName(parentTableDto.getTableName())
+                        .tableStructureDto(newTableStructureDto)
+                        .primaryKeys(primaryKeysProd)
+                        .isSearchedReference(false)
+                        .build();
 
-            MigrationDto newMigrationDto = MigrationDto.builder()
-                    .tableName(parentTableDto.getTableName())
-                    .tableStructureDto(newTableStructureDto)
-                    .primaryKeys(primaryKeysProd)
-                    .isSearchedReference(false)
-                    .build();
-
-            MigrationVo.setListMigration(newMigrationDto);
-            // MigrationVo.removePrimaryKeysListMigrationByTableName(parentTableDto.getTableName(), primaryKeysHomolog);
+                MigrationVo.setListMigration(newMigrationDto);
+            }
 
         }
     }

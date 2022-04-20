@@ -51,7 +51,11 @@ public class StringUtils {
         switch (tableDataDto.getFiledType()){
             case FieldTypesConstraint.VARCHAR_2:
             case FieldTypesConstraint.CHAR:
-                return "'" + tableDataDto.getFiledData() + "'";
+                if (tableDataDto.getFiledData() == null) {
+                    return "''";
+                } else {
+                    return "'" + tableDataDto.getFiledData() + "'";
+                }
             case FieldTypesConstraint.NUMBER:
                 return tableDataDto.getFiledData();
             case FieldTypesConstraint.DATE:
