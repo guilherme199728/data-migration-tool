@@ -35,10 +35,12 @@ public class ConnectionOracleJDBC {
 
     public static void initDatabaseConnectionPool() {
 
-        String urlJdbcProd = "jdbc:oracle:thin:@" +
-            PropertiesLoaderImpl.getValue("database.prod.host") + ":" +
-            PropertiesLoaderImpl.getValue("database.prod.port") + ":" +
-            PropertiesLoaderImpl.getValue("database.prod.database");
+        // String urlJdbcProd = "jdbc:oracle:thin:@" +
+        //     PropertiesLoaderImpl.getValue("database.prod.host") + ":" +
+        //     PropertiesLoaderImpl.getValue("database.prod.port") + ":" +
+        //     PropertiesLoaderImpl.getValue("database.prod.database");
+
+        String urlJdbcProd = PropertiesLoaderImpl.getValue("database.prod.host");
 
         dataSourceProd = new HikariDataSource();
         dataSourceProd.setJdbcUrl(urlJdbcProd);

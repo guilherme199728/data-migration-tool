@@ -4,9 +4,13 @@ import com.br.migrationTool.data.connection.ConnectionOracleJDBC;
 import com.br.migrationTool.dto.ChildrenTableDto;
 import com.br.migrationTool.dto.MigrationDto;
 import com.br.migrationTool.dto.ParentTableDto;
+import com.br.migrationTool.dto.TableStructureDto;
 import com.br.migrationTool.propertie.PropertiesLoaderImpl;
+import com.br.migrationTool.utils.StringUtils;
+
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.PreparedStatement;
@@ -42,6 +46,28 @@ public class TableReferencesDao {
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName, tableName};
+
+        return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
+    }
+
+    public static TableStructureDto getTableDtoFromConstraint(
+            String tableName, boolean isProd
+    ) throws SQLException {
+
+        String sql =
+            "SELECT a.column_name AS PRIMARYKEYNAME, a.table_name AS TABLENAME " +
+            "FROM all_cons_columns a " +
+            "JOIN all_constraints c ON a.owner = c.owner " +
+            "AND a.constraint_name = c.constraint_name " +
+            "WHERE c.owner = ? " +
+            "AND c.constraint_type = 'P' " +
+            "AND LOWER(c.table_name) = LOWER(?)";
+
+        String owner = getOwner(isProd);
+
+        QueryRunner runner = new QueryRunner();
+        ResultSetHandler<TableStructureDto> rsh = new BeanHandler<>(TableStructureDto.class);
+        Object [] params = new Object[]{owner, tableName};
 
         return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
@@ -153,7 +179,7 @@ public class TableReferencesDao {
                 "JOIN %s B on " +
                 "A.%s = B.%s " + "WHERE A.%s IN " +
                 getPrimaryKeysConcatenatedByOffSet(
-                        migrationDto.getTableStructureDto().getForeingKeyName(),
+                        parentTableDto.getForeingKeyName(),
                         migrationDto.getPrimaryKeys(),
                         offSet
                 );
@@ -181,10 +207,13 @@ public class TableReferencesDao {
     }
 
     public static List<String> getPrimaryKeysByRange(
-            String tableName, String primaryKeyName, String whereColum, String starRange, String endRange, boolean isProd
+            String tableName, String primaryKeyName, String whereColum, List<String> primaryKeys, boolean isProd
     ) throws SQLException {
 
-        String sql = String.format("SELECT %s FROM %s WHERE %s BETWEEN %s AND %s", primaryKeyName, tableName, whereColum, starRange, endRange);
+        String primaryKeyString = StringUtils.arrangeStringSeparatedByComma(primaryKeys);
+        String sql = String.format(
+            "SELECT %s FROM %s WHERE %s IN (%s)", primaryKeyName, tableName, whereColum, primaryKeyString
+        );
 
         PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ResultSet rs = ps.executeQuery();

@@ -42,10 +42,15 @@ public class StringUtils {
         return "(" + allString + ")";
     }
 
+    public static String arrangeStringSeparatedByComma(List<String> listItems) {
+        return String.join(", ", listItems);
+    }
+
     public static String transformDataToSqlField(TableDataDto tableDataDto) {
 
         switch (tableDataDto.getFiledType()){
             case FieldTypesConstraint.VARCHAR_2:
+            case FieldTypesConstraint.CHAR:
                 return "'" + tableDataDto.getFiledData() + "'";
             case FieldTypesConstraint.NUMBER:
                 return tableDataDto.getFiledData();

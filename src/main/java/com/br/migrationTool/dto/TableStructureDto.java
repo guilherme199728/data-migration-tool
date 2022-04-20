@@ -1,14 +1,13 @@
 package com.br.migrationTool.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 public class TableStructureDto {
     String tableName;
     String primaryKeyName;
-    String foreingKeyName;
 }

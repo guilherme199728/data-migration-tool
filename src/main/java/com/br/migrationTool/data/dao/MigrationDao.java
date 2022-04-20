@@ -35,7 +35,10 @@ public class MigrationDao {
         List<TableDataDto> allTableDataDto = getDataTableByPrimaryKey(tableName, primaryKeyName, primaryKey);
 
         String allTableFields = StringUtils.arrangeStringSeparatedByCommaAndInsideParenthesesByListString(
-                allTableDataDto.stream().map(TableDataDto::getFieldName).collect(Collectors.toList())
+            allTableDataDto
+                .stream()
+                .map(TableDataDto::getFieldName)
+                .collect(Collectors.toList())
         );
 
         String allDataTable = StringUtils.arrangeStringSeparatedByCommaAndInsideParenthesesByListTableDataDto(

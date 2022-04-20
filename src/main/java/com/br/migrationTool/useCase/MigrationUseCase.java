@@ -8,28 +8,21 @@ import com.br.migrationTool.dto.TableStructureDto;
 import com.br.migrationTool.vo.MigrationVo;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 public class MigrationUseCase {
     public void start() throws SQLException {
-        String initialTableName = "ACCOUNT";
-        String starRange = "106";
-        String endRange = "116";
+        String initialTableName = "T_REFERENCIAPRODUTO";
+        List<String> list = Arrays.asList(new String[] { "548857" });
 
-        addInitialTableToMigrationListByRange(initialTableName, starRange, endRange);
+        addInitialTableToMigrationListByRange(initialTableName, list);
         createMigrationList();
         MigrationDao.executeMigration();
     }
 
-    private void addInitialTableToMigrationListByRange(String initialTableName, String starRange, String endRange) throws SQLException {
-        List<String> allNamesColumnsInitialTable = TableReferencesDao.getAllNamesColumnsTableFromTableName(initialTableName, false);
-
-        TableStructureDto tableStructureDto = TableStructureDto.builder()
-                .tableName(initialTableName)
-                .primaryKeyName(allNamesColumnsInitialTable.stream().findFirst().orElse(""))
-                .foreingKeyName(allNamesColumnsInitialTable.stream().findFirst().orElse(""))
-                .build();
-
+    private void addInitialTableToMigrationListByRange(String initialTableName, List<String> primaryKeyList) throws SQLException {
+         TableStructureDto tableStructureDto = TableReferencesDao.getTableDtoFromConstraint(initialTableName, true);
 
         MigrationDto migrationDto = MigrationDto.builder()
                 .tableName(initialTableName)
@@ -41,8 +34,7 @@ public class MigrationUseCase {
                 migrationDto.getTableName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
-                starRange,
-                endRange,
+                primaryKeyList,
                 false
         );
 
@@ -50,8 +42,7 @@ public class MigrationUseCase {
                 migrationDto.getTableName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
-                starRange,
-                endRange,
+                primaryKeyList,
                 true
         );
 
@@ -98,11 +89,9 @@ public class MigrationUseCase {
                     migrationDto, parentTableDto, false
             );
 
-            TableStructureDto newTableStructureDto = TableStructureDto.builder()
-                    .tableName(parentTableDto.getTableName())
-                    .primaryKeyName(parentTableDto.getPrimaryKeyName())
-                    .foreingKeyName(parentTableDto.getForeingKeyName())
-                    .build();
+            TableStructureDto newTableStructureDto = new TableStructureDto();
+            newTableStructureDto.setTableName(parentTableDto.getTableName());
+            newTableStructureDto.setPrimaryKeyName(parentTableDto.getPrimaryKeyName());
 
             MigrationDto newMigrationDto = MigrationDto.builder()
                     .tableName(parentTableDto.getTableName())
@@ -112,7 +101,7 @@ public class MigrationUseCase {
                     .build();
 
             MigrationVo.setListMigration(newMigrationDto);
-            MigrationVo.removePrimaryKeysListMigrationByTableName(parentTableDto.getTableName(), primaryKeysHomolog);
+            // MigrationVo.removePrimaryKeysListMigrationByTableName(parentTableDto.getTableName(), primaryKeysHomolog);
 
         }
     }
