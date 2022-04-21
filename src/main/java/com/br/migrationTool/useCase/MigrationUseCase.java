@@ -2,27 +2,35 @@ package com.br.migrationTool.useCase;
 
 import com.br.migrationTool.data.dao.MigrationDao;
 import com.br.migrationTool.data.dao.TableReferencesDao;
-import com.br.migrationTool.dto.MigrationDto;
-import com.br.migrationTool.dto.ParentTableDto;
-import com.br.migrationTool.dto.TableStructureDto;
+import com.br.migrationTool.dto.migration.MigrationDto;
+import com.br.migrationTool.dto.migration.ParentTableDto;
+import com.br.migrationTool.dto.migration.TableStructureDto;
+import com.br.migrationTool.dto.rest.DataMigrationToolDto;
 import com.br.migrationTool.vo.MigrationVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class MigrationUseCase {
-    public void start() throws SQLException {
-        String initialTableName = "T_VENDA";
-        List<String> list = Arrays.asList(new String[] { "23257752" });
 
-        addInitialTableToMigrationListByRange(initialTableName, list);
+    @Autowired
+    TableReferencesDao tableReferencesDao;
+
+    @Autowired
+    MigrationDao migrationDao;
+
+    public void start(DataMigrationToolDto dataMigrationToolDto) throws SQLException {
+        addInitialTableToMigrationListByRange(dataMigrationToolDto.getTableName(), dataMigrationToolDto.getIds());
         createMigrationList();
-        MigrationDao.executeMigration();
+        migrationDao.executeMigration();
     }
 
     private void addInitialTableToMigrationListByRange(String initialTableName, List<String> primaryKeyList) throws SQLException {
-         TableStructureDto tableStructureDto = TableReferencesDao.getTableDtoFromConstraint(initialTableName, true);
+         TableStructureDto tableStructureDto = tableReferencesDao.getTableDtoFromConstraint(initialTableName, true);
 
         MigrationDto migrationDto = MigrationDto.builder()
                 .tableName(initialTableName)
@@ -30,7 +38,7 @@ public class MigrationUseCase {
                 .isSearchedReference(false)
                 .build();
 
-        List<String> primaryKeysExistingInHomolog = TableReferencesDao.getPrimaryKeysByRange(
+        List<String> primaryKeysExistingInHomolog = tableReferencesDao.getPrimaryKeysByRange(
                 migrationDto.getTableName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
@@ -38,7 +46,7 @@ public class MigrationUseCase {
                 false
         );
 
-        List<String> primaryKeysExistingInProd = TableReferencesDao.getPrimaryKeysByRange(
+        List<String> primaryKeysExistingInProd = tableReferencesDao.getPrimaryKeysByRange(
                 migrationDto.getTableName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
                 migrationDto.getTableStructureDto().getPrimaryKeyName(),
@@ -61,7 +69,7 @@ public class MigrationUseCase {
             for (MigrationDto migrationDto : migrationsDto) {
 
                 if (!migrationDto.isSearchedReference()) {
-                    List<ParentTableDto> parentTableDtos = TableReferencesDao.getParentTablesFromConstraint(
+                    List<ParentTableDto> parentTableDtos = tableReferencesDao.getParentTablesFromConstraint(
                             migrationDto.getTableName(), true
                     );
 
@@ -81,7 +89,7 @@ public class MigrationUseCase {
 
         for (ParentTableDto parentTableDto : parentTableDtos) {
 
-            List<String> primaryKeysProd = TableReferencesDao.getPrimaryKeysByParentTable(
+            List<String> primaryKeysProd = tableReferencesDao.getPrimaryKeysByParentTable(
                     migrationDto, parentTableDto, true
             );
 

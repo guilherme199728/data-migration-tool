@@ -1,18 +1,23 @@
 package com.br.migrationTool.data.dao;
 
 import com.br.migrationTool.data.connection.ConnectionOracleJDBC;
-import com.br.migrationTool.dto.ChildrenTableDto;
-import com.br.migrationTool.dto.MigrationDto;
-import com.br.migrationTool.dto.ParentTableDto;
-import com.br.migrationTool.dto.TableStructureDto;
-import com.br.migrationTool.propertie.PropertiesLoaderImpl;
+import com.br.migrationTool.dto.migration.ChildrenTableDto;
+import com.br.migrationTool.dto.migration.MigrationDto;
+import com.br.migrationTool.dto.migration.ParentTableDto;
+import com.br.migrationTool.dto.migration.TableStructureDto;
+import com.br.migrationTool.utils.OwnerUtils;
+import com.br.migrationTool.utils.SqlUtils;
 import com.br.migrationTool.utils.StringUtils;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -21,9 +26,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Component
 public class TableReferencesDao {
 
-    public static List<ParentTableDto> getParentTablesFromConstraint(
+    @Autowired
+    ConnectionOracleJDBC connectionOracleJDBC;
+
+    @Autowired
+    OwnerUtils ownerUtils;
+
+    public List<ParentTableDto> getParentTablesFromConstraint(
             String tableName, boolean isProd
     ) throws SQLException {
 
@@ -41,16 +53,16 @@ public class TableReferencesDao {
         "AND A.TABLE_NAME = ? " +
         "AND B.TABLE_NAME <> ? ";
 
-        String owner = getOwner(isProd);
+        String owner = ownerUtils.getOwner(isProd);
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName, tableName};
 
-        return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
+        return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
-    public static TableStructureDto getTableDtoFromConstraint(
+    public TableStructureDto getTableDtoFromConstraint(
             String tableName, boolean isProd
     ) throws SQLException {
 
@@ -63,16 +75,16 @@ public class TableReferencesDao {
             "AND c.constraint_type = 'P' " +
             "AND LOWER(c.table_name) = LOWER(?)";
 
-        String owner = getOwner(isProd);
+        String owner = ownerUtils.getOwner(isProd);
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<TableStructureDto> rsh = new BeanHandler<>(TableStructureDto.class);
         Object [] params = new Object[]{owner, tableName};
 
-        return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
+        return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
-    public static List<ChildrenTableDto> getChildrenTablesFromConstraint(
+    public List<ChildrenTableDto> getChildrenTablesFromConstraint(
             String tableName, boolean isProd
     ) throws SQLException {
 
@@ -91,16 +103,16 @@ public class TableReferencesDao {
         "AND B.OWNER = ? " +
         "AND A.TABLE_NAME = ? ";
 
-        String owner = getOwner(isProd);
+        String owner = ownerUtils.getOwner(isProd);
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ChildrenTableDto>> rsh = new BeanListHandler<>(ChildrenTableDto.class);
         Object [] params = new Object[]{owner, owner, tableName};
 
-        return runner.query(ConnectionOracleJDBC.getConnection(isProd), sql, rsh, params);
+        return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
-    public static String getPrimaryKeyNameFromConstraint(
+    public String getPrimaryKeyNameFromConstraint(
             String tableName, boolean isProd
     ) throws SQLException {
 
@@ -112,9 +124,9 @@ public class TableReferencesDao {
         "AND C.CONSTRAINT_TYPE = 'P' " +
         "AND C.TABLE_NAME = ? ";
 
-        String owner = getOwner(isProd);
+        String owner = ownerUtils.getOwner(isProd);
 
-        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, owner);
         ps.setString(2, tableName);
         ResultSet rs = ps.executeQuery();
@@ -127,7 +139,7 @@ public class TableReferencesDao {
         return primaryKeyNames;
     }
 
-    public static List<String> getAllNamesColumnsTableFromTableName(
+    public List<String> getAllNamesColumnsTableFromTableName(
             String tableName, boolean isProd
     ) throws SQLException {
 
@@ -135,7 +147,7 @@ public class TableReferencesDao {
         "FROM USER_TAB_COLUMNS WHERE " +
         "TABLE_NAME = ? ";
 
-        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, tableName);
         ResultSet rs = ps.executeQuery();
 
@@ -147,7 +159,7 @@ public class TableReferencesDao {
         return allNamesColunsTable;
     }
 
-    public static HashMap<String, String> getAllNamesAndTypeColumnsTableFromTableName(
+    public HashMap<String, String> getAllNamesAndTypeColumnsTableFromTableName(
             String tableName, boolean isProd
     ) throws SQLException {
 
@@ -155,7 +167,7 @@ public class TableReferencesDao {
                 "FROM USER_TAB_COLUMNS WHERE " +
                 "TABLE_NAME = ? ";
 
-        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, tableName);
         ResultSet rs = ps.executeQuery();
         ResultSetMetaData md = rs.getMetaData();
@@ -169,7 +181,7 @@ public class TableReferencesDao {
         return allNamesColumnsTable;
     }
 
-    public static List<String> getPrimaryKeysByParentTable(
+    public List<String> getPrimaryKeysByParentTable(
             MigrationDto migrationDto, ParentTableDto parentTableDto, boolean isProd
     ) throws SQLException {
 
@@ -187,9 +199,9 @@ public class TableReferencesDao {
         String sqlBuilt = String.format(
                 sql,
                 parentTableDto.getForeingKeyName(),
-                getOwner(isProd),
+                ownerUtils.getOwner(isProd),
                 migrationDto.getTableName(),
-                getOwner(isProd),
+                ownerUtils.getOwner(isProd),
                 parentTableDto.getTableName(),
                 parentTableDto.getForeingKeyName(),
                 parentTableDto.getPrimaryKeyName(),
@@ -197,7 +209,7 @@ public class TableReferencesDao {
 
         );
 
-        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
+        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
         ResultSet rs = ps.executeQuery();
 
         List<String> allPrimaryKeys = new ArrayList<>();
@@ -208,16 +220,16 @@ public class TableReferencesDao {
         return allPrimaryKeys;
     }
 
-    public static List<String> getPrimaryKeysByRange(
+    public List<String> getPrimaryKeysByRange(
             String tableName, String primaryKeyName, String whereColum, List<String> primaryKeys, boolean isProd
     ) throws SQLException {
 
         String primaryKeyString = StringUtils.arrangeStringSeparatedByComma(primaryKeys);
         String sql = String.format(
-            "SELECT %s FROM %s WHERE %s IN (%s)", primaryKeyName, tableName, whereColum, primaryKeyString
+            "SELECT %s FROM %s.%s WHERE %s IN (%s)", primaryKeyName, ownerUtils.getOwner(isProd), tableName, whereColum, primaryKeyString
         );
 
-        PreparedStatement ps = ConnectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
         List<String> allNamesColumnsTable = new ArrayList<>();
@@ -229,7 +241,7 @@ public class TableReferencesDao {
         return allNamesColumnsTable;
     }
 
-    private static String getPrimaryKeysConcatenatedByOffSet(String primaryKeyName, List<String> primaryKeys, int offSet) {
+    private String getPrimaryKeysConcatenatedByOffSet(String primaryKeyName, List<String> primaryKeys, int offSet) {
 
         List<String> listPrimaryKeysByOffSet = getListPrimaryKeysSeparatedByBarByOffset(offSet, primaryKeys);
 
@@ -266,13 +278,5 @@ public class TableReferencesDao {
         }
 
         return List.of(primaryKeysConcat.toString().split("/"));
-    }
-
-    private static String getOwner(boolean isProd) {
-        if (isProd) {
-            return PropertiesLoaderImpl.getValue("database.prod.owner");
-        } else {
-            return PropertiesLoaderImpl.getValue("database.homolog.owner");
-        }
     }
 }

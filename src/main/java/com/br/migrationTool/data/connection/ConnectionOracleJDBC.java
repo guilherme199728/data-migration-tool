@@ -1,23 +1,32 @@
 package com.br.migrationTool.data.connection;
 
-import com.br.migrationTool.propertie.PropertiesLoaderImpl;
-import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+@Configuration
 public class ConnectionOracleJDBC {
 
-    private static HikariDataSource dataSourceProd;
-    private static HikariDataSource dataSourceHomolog;
-    private static Connection connectionProd;
-    private static Connection connectionHomolog;
+    @Autowired
+    @Qualifier("megaStoreDataSourceHml")
+    DataSource dataSourceHomolog;
 
-    public static Connection getConnection(boolean isProd) throws SQLException {
+    @Autowired
+    @Qualifier("megaStoreDataSourceProd")
+    DataSource dataSourceProd;
+
+    Connection connectionProd;
+    Connection connectionHomolog;
+
+    public Connection getConnection(boolean isProd) throws SQLException {
         return isProd ? getConnectionProd() : getConnectionHomolog();
     }
 
-    private static Connection getConnectionProd() throws SQLException {
+    private Connection getConnectionProd() throws SQLException {
         if (connectionProd == null) {
             connectionProd = dataSourceProd.getConnection();
         }
@@ -25,41 +34,11 @@ public class ConnectionOracleJDBC {
         return connectionProd;
     }
 
-    private static Connection getConnectionHomolog() throws SQLException {
+    private Connection getConnectionHomolog() throws SQLException {
         if (connectionHomolog == null) {
             connectionHomolog = dataSourceHomolog.getConnection();
         }
 
         return connectionHomolog;
-    }
-
-    public static void initDatabaseConnectionPool() {
-
-        // String urlJdbcProd = "jdbc:oracle:thin:@" +
-        //     PropertiesLoaderImpl.getValue("database.prod.host") + ":" +
-        //     PropertiesLoaderImpl.getValue("database.prod.port") + ":" +
-        //     PropertiesLoaderImpl.getValue("database.prod.database");
-
-        String urlJdbcProd = PropertiesLoaderImpl.getValue("database.prod.host");
-
-        dataSourceProd = new HikariDataSource();
-        dataSourceProd.setJdbcUrl(urlJdbcProd);
-        dataSourceProd.setUsername(PropertiesLoaderImpl.getValue("database.prod.user"));
-        dataSourceProd.setPassword(PropertiesLoaderImpl.getValue("database.prod.password"));
-
-        String urlJdbcHomolog = "jdbc:oracle:thin:@" +
-            PropertiesLoaderImpl.getValue("database.homolog.host") + ":" +
-            PropertiesLoaderImpl.getValue("database.homolog.port") + ":" +
-            PropertiesLoaderImpl.getValue("database.homolog.database");
-
-        dataSourceHomolog = new HikariDataSource();
-        dataSourceHomolog.setJdbcUrl(urlJdbcHomolog);
-        dataSourceHomolog.setUsername(PropertiesLoaderImpl.getValue("database.homolog.user"));
-        dataSourceHomolog.setPassword(PropertiesLoaderImpl.getValue("database.homolog.password"));
-    }
-
-    public static void closeDataBaseConnectionPool() {
-        dataSourceProd.close();
-        dataSourceHomolog.close();
     }
 }

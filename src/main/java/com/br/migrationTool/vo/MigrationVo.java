@@ -1,6 +1,6 @@
 package com.br.migrationTool.vo;
 
-import com.br.migrationTool.dto.MigrationDto;
+import com.br.migrationTool.dto.migration.MigrationDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
