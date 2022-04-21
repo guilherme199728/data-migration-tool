@@ -1,4 +1,4 @@
-package com.br.migrationTool.controlers;
+package com.br.migrationTool.controllers;
 
 import com.br.migrationTool.dtos.rest.DataMigrationToolDto;
 import com.br.migrationTool.services.DataMigrationToolService;
