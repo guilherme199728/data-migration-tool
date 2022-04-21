@@ -1,4 +1,4 @@
-package com.br.migrationTool.dto.rest;
+package com.br.migrationTool.dtos.rest;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package com.br.migrationTool.builders;
 
-import com.br.migrationTool.dto.migration.MigrationDto;
+import com.br.migrationTool.dtos.migration.MigrationDto;
 
 import java.util.List;
 

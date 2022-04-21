@@ -1,4 +1,4 @@
-package com.br.migrationTool.data.connection;
+package com.br.migrationTool.datas.connections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

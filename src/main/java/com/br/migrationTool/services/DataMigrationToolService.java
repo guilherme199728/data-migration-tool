@@ -1,7 +1,7 @@
-package com.br.migrationTool.service;
+package com.br.migrationTool.services;
 
-import com.br.migrationTool.dto.rest.DataMigrationToolDto;
-import com.br.migrationTool.useCase.MigrationUseCase;
+import com.br.migrationTool.dtos.rest.DataMigrationToolDto;
+import com.br.migrationTool.useCases.MigrationUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

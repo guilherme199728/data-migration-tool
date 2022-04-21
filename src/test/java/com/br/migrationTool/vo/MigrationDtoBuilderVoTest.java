@@ -1,5 +1,6 @@
 package com.br.migrationTool.vo;
 
+import com.br.migrationTool.vos.MigrationVo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

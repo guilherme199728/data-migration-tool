@@ -1,17 +1,16 @@
-package com.br.migrationTool.useCase;
+package com.br.migrationTool.useCases;
 
-import com.br.migrationTool.data.dao.MigrationDao;
-import com.br.migrationTool.data.dao.TableReferencesDao;
-import com.br.migrationTool.dto.migration.MigrationDto;
-import com.br.migrationTool.dto.migration.ParentTableDto;
-import com.br.migrationTool.dto.migration.TableStructureDto;
-import com.br.migrationTool.dto.rest.DataMigrationToolDto;
-import com.br.migrationTool.vo.MigrationVo;
+import com.br.migrationTool.datas.daos.MigrationDao;
+import com.br.migrationTool.datas.daos.TableReferencesDao;
+import com.br.migrationTool.dtos.migration.MigrationDto;
+import com.br.migrationTool.dtos.migration.ParentTableDto;
+import com.br.migrationTool.dtos.migration.TableStructureDto;
+import com.br.migrationTool.dtos.rest.DataMigrationToolDto;
+import com.br.migrationTool.vos.MigrationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 @Component

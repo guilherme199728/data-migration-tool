@@ -1,4 +1,4 @@
-package com.br.migrationTool.dto.migration;
+package com.br.migrationTool.dtos.migration;
 
 import lombok.Builder;
 import lombok.Getter;

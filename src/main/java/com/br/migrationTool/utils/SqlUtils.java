@@ -1,7 +1,7 @@
 package com.br.migrationTool.utils;
 
 import com.br.migrationTool.constraints.FieldTypesConstraint;
-import com.br.migrationTool.dto.migration.TableDataDto;
+import com.br.migrationTool.dtos.migration.TableDataDto;
 
 import java.util.ArrayList;
 import java.util.List;

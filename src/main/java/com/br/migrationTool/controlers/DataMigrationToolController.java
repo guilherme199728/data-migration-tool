@@ -1,7 +1,7 @@
 package com.br.migrationTool.controlers;
 
-import com.br.migrationTool.dto.rest.DataMigrationToolDto;
-import com.br.migrationTool.service.DataMigrationToolService;
+import com.br.migrationTool.dtos.rest.DataMigrationToolDto;
+import com.br.migrationTool.services.DataMigrationToolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

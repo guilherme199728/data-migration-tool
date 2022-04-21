@@ -1,4 +1,4 @@
-package com.br.migrationTool.config;
+package com.br.migrationTool.configs;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;

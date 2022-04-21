@@ -1,12 +1,11 @@
-package com.br.migrationTool.data.dao;
+package com.br.migrationTool.datas.daos;
 
-import com.br.migrationTool.data.connection.ConnectionOracleJDBC;
-import com.br.migrationTool.dto.migration.ChildrenTableDto;
-import com.br.migrationTool.dto.migration.MigrationDto;
-import com.br.migrationTool.dto.migration.ParentTableDto;
-import com.br.migrationTool.dto.migration.TableStructureDto;
+import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
+import com.br.migrationTool.dtos.migration.ChildrenTableDto;
+import com.br.migrationTool.dtos.migration.MigrationDto;
+import com.br.migrationTool.dtos.migration.ParentTableDto;
+import com.br.migrationTool.dtos.migration.TableStructureDto;
 import com.br.migrationTool.utils.OwnerUtils;
-import com.br.migrationTool.utils.SqlUtils;
 import com.br.migrationTool.utils.StringUtils;
 
 import org.apache.commons.dbutils.QueryRunner;
@@ -14,10 +13,8 @@ import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
