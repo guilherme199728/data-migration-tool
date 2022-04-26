@@ -25,7 +25,7 @@ public class MigrationVo {
 
     public static List<String> getAllTableInMigrationList() {
         return MigrationVo.getListMigration().stream().map(MigrationDto::getTableName)
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
     }
 
     public static MigrationDto getMigrationByTableName(String tableName) {
@@ -37,7 +37,7 @@ public class MigrationVo {
 
         primaryKeys.forEach(primaryKeyForRemove -> migrationDto.getPrimaryKeys().remove(primaryKeyForRemove));
 
-        if(migrationDto.getPrimaryKeys().size() == 0) {
+        if (migrationDto.getPrimaryKeys().size() == 0) {
             MigrationVo.getListMigration().remove(migrationDto);
         }
 
@@ -45,7 +45,7 @@ public class MigrationVo {
 
     public static void setListMigration(MigrationDto migrationDto) {
         MigrationDto migrationDtoExisting = getMigrationByTableName(migrationDto.getTableName());
-        if(migrationDtoExisting != null) {
+        if (migrationDtoExisting != null) {
             for (String primaryKey : migrationDto.getPrimaryKeys()) {
                 if (!migrationDtoExisting.getPrimaryKeys().contains(primaryKey)) {
                     migrationDtoExisting.getPrimaryKeys().add(primaryKey);
@@ -54,11 +54,11 @@ public class MigrationVo {
             }
         } else {
             listMigrationVo.add(
-                 MigrationDto.builder()
-                .tableName(migrationDto.getTableName())
-                .primaryKeys(migrationDto.getPrimaryKeys().stream().distinct().collect(Collectors.toList()))
-                .basicTableStructureDto(migrationDto.getBasicTableStructureDto())
-                .build()
+                MigrationDto.builder()
+                    .tableName(migrationDto.getTableName())
+                    .primaryKeys(migrationDto.getPrimaryKeys().stream().distinct().collect(Collectors.toList()))
+                    .basicTableStructureDto(migrationDto.getBasicTableStructureDto())
+                    .build()
             );
         }
     }

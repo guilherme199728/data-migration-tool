@@ -10,9 +10,9 @@ public class MigrationDtoBuilder {
     public static MigrationDtoBuilder oneMigration() {
         MigrationDtoBuilder builder = new MigrationDtoBuilder();
         builder.migrationDto = MigrationDto.builder()
-                .primaryKeys(PrimaryKeysBuilder.oneListPrimaryKeysBuilder().build())
-                .tableName("TEST")
-                .build();
+            .primaryKeys(PrimaryKeysBuilder.oneListPrimaryKeysBuilder().build())
+            .tableName("TEST")
+            .build();
 
         return builder;
     }

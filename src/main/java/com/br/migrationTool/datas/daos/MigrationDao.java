@@ -35,14 +35,14 @@ public class MigrationDao {
             for (String primaryKey : migrationDto.getPrimaryKeys()) {
 
                 List<TableDataDto> allTableDataDto = getDataTableByPrimaryKey(
-                        migrationDto.getTableName(),
-                        migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
+                    migrationDto.getTableName(),
+                    migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
                 );
 
                 String sqlUpdateData = SqlUtils.getStringSqlUpdateData(
-                        migrationDto.getTableName(),
-                        migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
-                        allTableDataDto
+                    migrationDto.getTableName(),
+                    migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
+                    allTableDataDto
                 );
                 System.out.println(sqlUpdateData);
 
@@ -76,10 +76,10 @@ public class MigrationDao {
         while (rs.next()) {
             for (Map.Entry<String, String> column : allColumnsTable.entrySet()) {
                 TableDataDto tableDataDto = TableDataDto.builder()
-                        .fieldName(column.getKey())
-                        .filedData(column.getValue().equals("BLOB") ? null : rs.getString(column.getKey()))
-                        .filedType(column.getValue())
-                        .build();
+                    .fieldName(column.getKey())
+                    .filedData(column.getValue().equals("BLOB") ? null : rs.getString(column.getKey()))
+                    .filedType(column.getValue())
+                    .build();
 
                 allTableDataDto.add(tableDataDto);
             }

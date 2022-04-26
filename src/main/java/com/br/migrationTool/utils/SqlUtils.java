@@ -11,7 +11,7 @@ public class SqlUtils {
 
     public static String transformDataToSqlField(TableDataDto tableDataDto) {
 
-        switch (tableDataDto.getFiledType()){
+        switch (tableDataDto.getFiledType()) {
             case FieldTypesConstraint.VARCHAR_2:
             case FieldTypesConstraint.CHAR:
                 if (tableDataDto.getFiledData() == null) {
@@ -54,27 +54,27 @@ public class SqlUtils {
         StringBuilder sqlInsert = new StringBuilder();
 
         String allTableFields = SqlUtils.arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(
-                allTableDataDto
-                        .stream()
-                        .map(TableDataDto::getFieldName)
-                        .collect(Collectors.toList())
+            allTableDataDto
+                .stream()
+                .map(TableDataDto::getFieldName)
+                .collect(Collectors.toList())
         );
 
         String allTableValues = SqlUtils.arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(
-                allTableDataDto
-                        .stream()
-                        .map(SqlUtils::transformDataToSqlField)
-                        .collect(Collectors.toList())
+            allTableDataDto
+                .stream()
+                .map(SqlUtils::transformDataToSqlField)
+                .collect(Collectors.toList())
         );
 
         return sqlInsert
-                .append("INSERT INTO ")
-                .append(tableName)
-                .append(" ")
-                .append(allTableFields)
-                .append(" VALUES ")
-                .append(allTableValues)
-                .toString();
+            .append("INSERT INTO ")
+            .append(tableName)
+            .append(" ")
+            .append(allTableFields)
+            .append(" VALUES ")
+            .append(allTableValues)
+            .toString();
     }
 
     public static String getStringSqlUpdateData(String tableName, String primaryKeyName, List<TableDataDto> allTableDataDto) {
@@ -83,16 +83,16 @@ public class SqlUtils {
 
         String allTableFields = SqlUtils.arrangeStringUpdateSqlSeparatedByCommaByListTableDataDto(allTableDataDto);
 
-        return  sqlUpdate
-                .append("UPDATE ")
-                .append(tableName)
-                .append(" SET ")
-                .append(allTableFields)
-                .append(" WHERE ")
-                .append(primaryKeyName)
-                .append(" = ")
-                .append(getPkValueByPkName(primaryKeyName, allTableDataDto))
-                .toString();
+        return sqlUpdate
+            .append("UPDATE ")
+            .append(tableName)
+            .append(" SET ")
+            .append(allTableFields)
+            .append(" WHERE ")
+            .append(primaryKeyName)
+            .append(" = ")
+            .append(getPkValueByPkName(primaryKeyName, allTableDataDto))
+            .toString();
     }
 
     public static String getPkValueByPkName(String primaryKeyName, List<TableDataDto> allTableDataDto) {

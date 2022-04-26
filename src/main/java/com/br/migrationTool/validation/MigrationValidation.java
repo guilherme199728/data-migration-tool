@@ -22,17 +22,17 @@ public class MigrationValidation {
     MessagePropertiesReader messagePropertiesReader;
 
     public void isIdsLimitValid(List<String> ids) {
-        if(ids.size() > itemLimitMigration) {
+        if (ids.size() > itemLimitMigration) {
             throw new ItemLimitMigrationExceededException(
-                    MessageFormat.format(
-                            messagePropertiesReader.getMessage("limit.Exceeded"), itemLimitMigration
-                    )
+                MessageFormat.format(
+                    messagePropertiesReader.getMessage("limit.Exceeded"), itemLimitMigration
+                )
             );
         }
     }
 
     public void isNoItemsFound(List<String> primaryKeysExistingInProd) {
-        if(primaryKeysExistingInProd.size() == 0) {
+        if (primaryKeysExistingInProd.size() == 0) {
             throw new ItemNotFoundException(messagePropertiesReader.getMessage("item.not.found"));
         }
     }

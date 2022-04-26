@@ -30,8 +30,8 @@ public class MigrationService {
     public void migrateByRangeIds(RequestRangeIdsMigrationDto requestRangeIdsMigrationDto) throws SQLException {
 
         List<String> ids = IntStream
-                .range(requestRangeIdsMigrationDto.getStartId(), requestRangeIdsMigrationDto.getEndId())
-                .mapToObj(String::valueOf).toList();
+            .range(requestRangeIdsMigrationDto.getStartId(), requestRangeIdsMigrationDto.getEndId())
+            .mapToObj(String::valueOf).toList();
 
         migrationValidation.isIdsLimitValid(ids);
         migrationUseCase.process(requestRangeIdsMigrationDto.getTableName(), ids);

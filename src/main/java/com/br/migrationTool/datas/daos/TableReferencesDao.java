@@ -34,7 +34,7 @@ public class TableReferencesDao {
     OwnerUtils ownerUtils;
 
     public List<ParentTableDto> getParentTablesFromConstraint(
-            String tableName, boolean isProd
+        String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_PARENT_TABLE;
@@ -43,13 +43,13 @@ public class TableReferencesDao {
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
-        Object [] params = new Object[]{owner, owner, tableName, tableName};
+        Object[] params = new Object[]{owner, owner, tableName, tableName};
 
         return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
     public BasicTableStructureDto getBasicTableStructureFromConstraint(
-            String tableName, boolean isProd
+        String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_BASIC_TABLE_STRUCTURE;
@@ -58,13 +58,13 @@ public class TableReferencesDao {
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<BasicTableStructureDto> rsh = new BeanHandler<>(BasicTableStructureDto.class);
-        Object [] params = new Object[]{owner, tableName};
+        Object[] params = new Object[]{owner, tableName};
 
         return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
     public HashMap<String, String> getAllNamesAndTypeColumnsTableFromTableName(
-            String tableName, boolean isProd
+        String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_ALL_NAMES_AND_TYPE_COLUMNS_TABLE;
@@ -84,7 +84,7 @@ public class TableReferencesDao {
     }
 
     public List<ChildrenTableDto> getChildrenTablesFromConstraint(
-            String tableName, boolean isProd
+        String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_CHILDREN_TABLES;
@@ -93,13 +93,13 @@ public class TableReferencesDao {
 
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ChildrenTableDto>> rsh = new BeanListHandler<>(ChildrenTableDto.class);
-        Object [] params = new Object[]{owner, owner, tableName};
+        Object[] params = new Object[]{owner, owner, tableName};
 
         return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
     public String getPrimaryKeyNameFromConstraint(
-            String tableName, boolean isProd
+        String tableName, boolean isProd
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_PRIMARY_KEY_NAME;
@@ -120,7 +120,7 @@ public class TableReferencesDao {
     }
 
     public List<String> getPrimaryKeysByParentTable(
-            MigrationDto migrationDto, ParentTableDto parentTableDto, boolean isProd
+        MigrationDto migrationDto, ParentTableDto parentTableDto, boolean isProd
     ) throws SQLException {
 
         int offSet = 950;
@@ -157,7 +157,7 @@ public class TableReferencesDao {
     }
 
     public List<String> getPrimaryKeys(
-            String tableName, String primaryKeyName, String whereColum, List<String> primaryKeys, boolean isProd
+        String tableName, String primaryKeyName, String whereColum, List<String> primaryKeys, boolean isProd
     ) throws SQLException {
 
         String primaryKeyString = StringUtils.arrangeStringSeparatedByComma(primaryKeys);
@@ -208,10 +208,10 @@ public class TableReferencesDao {
 
         for (String primaryKey : primaryKeys) {
             primaryKeysConcat.append("'").append(primaryKey).append("'");
-            if(nextOffSet == index){
+            if (nextOffSet == index) {
                 primaryKeysConcat.append("/");
                 nextOffSet = nextOffSet + offSet;
-            } else if (index != primaryKeys.size()){
+            } else if (index != primaryKeys.size()) {
                 primaryKeysConcat.append(",");
             }
 
