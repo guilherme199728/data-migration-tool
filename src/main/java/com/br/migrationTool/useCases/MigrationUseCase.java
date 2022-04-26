@@ -5,7 +5,9 @@ import com.br.migrationTool.datas.daos.TableReferencesDao;
 import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.dtos.migration.ParentTableDto;
 import com.br.migrationTool.dtos.migration.TableStructureDto;
-import com.br.migrationTool.dtos.rest.DataMigrationToolDto;
+import com.br.migrationTool.dtos.rest.RequestSeparateIdsMigrationDto;
+import com.br.migrationTool.exception.ItemNotFoundException;
+import com.br.migrationTool.validation.MigrationValidation;
 import com.br.migrationTool.vos.MigrationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,8 +24,11 @@ public class MigrationUseCase {
     @Autowired
     MigrationDao migrationDao;
 
-    public void start(DataMigrationToolDto dataMigrationToolDto) throws SQLException {
-        addInitialTableToMigrationListByRange(dataMigrationToolDto.getTableName(), dataMigrationToolDto.getIds());
+    @Autowired
+    MigrationValidation migrationValidation;
+
+    public void process(String tableName, List<String> ids) throws SQLException {
+        addInitialTableToMigrationListByRange(tableName, ids);
         createMigrationList();
         migrationDao.executeMigration();
     }
@@ -53,10 +58,11 @@ public class MigrationUseCase {
                 true
         );
 
+        migrationValidation.isNoItemsFound(primaryKeysExistingInProd);
         migrationDto.setPrimaryKeys(primaryKeysExistingInProd);
-
         MigrationVo.setListMigration(migrationDto);
         MigrationVo.removePrimaryKeysListMigrationByTableName(migrationDto.getTableName(), primaryKeysExistingInHomolog);
+        migrationValidation.isAllMigratedItems(MigrationVo.getListMigration());
     }
 
     private void createMigrationList() throws SQLException {
@@ -106,7 +112,6 @@ public class MigrationUseCase {
 
                 MigrationVo.setListMigration(newMigrationDto);
             }
-
         }
     }
 }

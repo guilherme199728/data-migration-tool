@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class DataMigrationToolDto {
+public class RequestSeparateIdsMigrationDto {
     String tableName;
     List<String> ids;
 }

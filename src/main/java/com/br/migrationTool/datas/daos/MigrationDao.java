@@ -69,7 +69,7 @@ public class MigrationDao {
         ps.setString(1, primaryKey);
         ResultSet rs = ps.executeQuery();
 
-        HashMap<String, String> allColumnsTable = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(tableName, false);
+        HashMap<String, String> allColumnsTable = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(tableName, true);
 
         List<TableDataDto> allTableDataDto = new ArrayList<>();
 
