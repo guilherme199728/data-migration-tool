@@ -5,7 +5,7 @@ import com.br.migrationTool.datas.daos.TableReferencesDao;
 import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.dtos.migration.ParentTableDto;
 import com.br.migrationTool.dtos.migration.BasicTableStructureDto;
-import com.br.migrationTool.validation.MigrationValidation;
+import com.br.migrationTool.validations.MigrationValidation;
 import com.br.migrationTool.vos.MigrationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

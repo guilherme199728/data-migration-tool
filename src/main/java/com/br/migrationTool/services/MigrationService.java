@@ -2,11 +2,9 @@ package com.br.migrationTool.services;
 
 import com.br.migrationTool.dtos.rest.RequestRangeIdsMigrationDto;
 import com.br.migrationTool.dtos.rest.RequestSeparateIdsMigrationDto;
-import com.br.migrationTool.exception.ItemLimitMigrationExceededException;
 import com.br.migrationTool.useCases.MigrationUseCase;
-import com.br.migrationTool.validation.MigrationValidation;
+import com.br.migrationTool.validations.MigrationValidation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;

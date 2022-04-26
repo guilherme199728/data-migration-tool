@@ -1,4 +1,4 @@
-package com.br.migrationTool.exception;
+package com.br.migrationTool.exceptions;
 
 public class ValidationException extends RuntimeException {
     public ValidationException(String message) {

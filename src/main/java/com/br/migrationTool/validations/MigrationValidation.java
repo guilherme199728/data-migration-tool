@@ -1,10 +1,10 @@
-package com.br.migrationTool.validation;
+package com.br.migrationTool.validations;
 
 import com.br.migrationTool.configs.MessagePropertiesReader;
 import com.br.migrationTool.dtos.migration.MigrationDto;
-import com.br.migrationTool.exception.AllItemsMigratedException;
-import com.br.migrationTool.exception.ItemLimitMigrationExceededException;
-import com.br.migrationTool.exception.ItemNotFoundException;
+import com.br.migrationTool.exceptions.AllItemsMigratedException;
+import com.br.migrationTool.exceptions.ItemLimitMigrationExceededException;
+import com.br.migrationTool.exceptions.ItemNotFoundException;
 import com.br.migrationTool.vos.MigrationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

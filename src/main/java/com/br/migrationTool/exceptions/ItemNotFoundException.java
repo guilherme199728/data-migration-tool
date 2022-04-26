@@ -1,4 +1,4 @@
-package com.br.migrationTool.exception;
+package com.br.migrationTool.exceptions;
 
 public class ItemNotFoundException extends RuntimeException {
     public ItemNotFoundException(String message) {

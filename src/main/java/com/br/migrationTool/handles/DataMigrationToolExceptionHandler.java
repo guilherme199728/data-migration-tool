@@ -1,8 +1,8 @@
 package com.br.migrationTool.handles;
 
 import com.br.migrationTool.dtos.rest.BasicHttpResponse;
-import com.br.migrationTool.exception.ItemNotFoundException;
-import com.br.migrationTool.exception.ValidationException;
+import com.br.migrationTool.exceptions.ItemNotFoundException;
+import com.br.migrationTool.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

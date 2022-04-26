@@ -2,7 +2,6 @@ package com.br.migrationTool.controllers;
 
 import com.br.migrationTool.dtos.rest.RequestRangeIdsMigrationDto;
 import com.br.migrationTool.dtos.rest.RequestSeparateIdsMigrationDto;
-import com.br.migrationTool.exception.ItemLimitMigrationExceededException;
 import com.br.migrationTool.services.MigrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
