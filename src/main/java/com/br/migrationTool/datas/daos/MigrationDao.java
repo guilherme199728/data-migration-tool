@@ -1,5 +1,6 @@
 package com.br.migrationTool.datas.daos;
 
+import com.br.migrationTool.constraints.querys.MigrationQueryConstraint;
 import com.br.migrationTool.dtos.migration.TableDataDto;
 import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.SqlUtils;
@@ -61,15 +62,24 @@ public class MigrationDao {
         }
     }
 
-    private List<TableDataDto> getDataTableByPrimaryKey(String tableName, String primaryKeyName, String primaryKey) throws SQLException {
+    private List<TableDataDto> getDataTableByPrimaryKey(
+        String tableName, String primaryKeyName, String primaryKey
+    ) throws SQLException {
 
-        String sql = String.format("select * from %s.%s where %s = ?", ownerUtils.getOwner(true), tableName, primaryKeyName);
+        String sql = String.format(
+            MigrationQueryConstraint.GET_DATA_TABLE_BY_PRIMARY_KEY,
+            ownerUtils.getOwner(true),
+            tableName,
+            primaryKeyName
+        );
 
         PreparedStatement ps = connectionOracleJDBC.getConnection(true).prepareStatement(sql);
         ps.setString(1, primaryKey);
         ResultSet rs = ps.executeQuery();
 
-        HashMap<String, String> allColumnsTable = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(tableName, true);
+        HashMap<String, String> allColumnsTable = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
+            tableName, true
+        );
 
         List<TableDataDto> allTableDataDto = new ArrayList<>();
 
