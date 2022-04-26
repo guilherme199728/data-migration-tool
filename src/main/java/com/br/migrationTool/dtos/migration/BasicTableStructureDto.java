@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TableStructureDto {
+public class BasicTableStructureDto {
     String tableName;
     String primaryKeyName;
 }

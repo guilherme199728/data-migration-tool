@@ -4,9 +4,7 @@ import com.br.migrationTool.datas.daos.MigrationDao;
 import com.br.migrationTool.datas.daos.TableReferencesDao;
 import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.dtos.migration.ParentTableDto;
-import com.br.migrationTool.dtos.migration.TableStructureDto;
-import com.br.migrationTool.dtos.rest.RequestSeparateIdsMigrationDto;
-import com.br.migrationTool.exception.ItemNotFoundException;
+import com.br.migrationTool.dtos.migration.BasicTableStructureDto;
 import com.br.migrationTool.validation.MigrationValidation;
 import com.br.migrationTool.vos.MigrationVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,27 +31,32 @@ public class MigrationUseCase {
         migrationDao.executeMigration();
     }
 
-    private void addInitialTableToMigrationListByRange(String initialTableName, List<String> primaryKeyList) throws SQLException {
-         TableStructureDto tableStructureDto = tableReferencesDao.getTableDtoFromConstraint(initialTableName, true);
+    private void addInitialTableToMigrationListByRange(
+            String initialTableName, List<String> primaryKeyList
+    ) throws SQLException {
+
+         BasicTableStructureDto basicTableStructureDto = tableReferencesDao.getBasicTableStructureFromConstraint(
+                 initialTableName, true
+         );
 
         MigrationDto migrationDto = MigrationDto.builder()
                 .tableName(initialTableName)
-                .tableStructureDto(tableStructureDto)
+                .basicTableStructureDto(basicTableStructureDto)
                 .isSearchedReference(false)
                 .build();
 
-        List<String> primaryKeysExistingInHomolog = tableReferencesDao.getPrimaryKeysByRange(
+        List<String> primaryKeysExistingInHomolog = tableReferencesDao.getPrimaryKeys(
                 migrationDto.getTableName(),
-                migrationDto.getTableStructureDto().getPrimaryKeyName(),
-                migrationDto.getTableStructureDto().getPrimaryKeyName(),
+                migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
+                migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
                 primaryKeyList,
                 false
         );
 
-        List<String> primaryKeysExistingInProd = tableReferencesDao.getPrimaryKeysByRange(
+        List<String> primaryKeysExistingInProd = tableReferencesDao.getPrimaryKeys(
                 migrationDto.getTableName(),
-                migrationDto.getTableStructureDto().getPrimaryKeyName(),
-                migrationDto.getTableStructureDto().getPrimaryKeyName(),
+                migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
+                migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
                 primaryKeyList,
                 true
         );
@@ -90,7 +93,9 @@ public class MigrationUseCase {
 
     }
 
-    private void addParentsToMigrationList(List<ParentTableDto> parentTableDtos, MigrationDto migrationDto) throws SQLException {
+    private void addParentsToMigrationList(
+            List<ParentTableDto> parentTableDtos, MigrationDto migrationDto
+    ) throws SQLException {
 
         for (ParentTableDto parentTableDto : parentTableDtos) {
 
@@ -99,13 +104,13 @@ public class MigrationUseCase {
             );
 
             if (!primaryKeysProd.isEmpty()) {
-                TableStructureDto newTableStructureDto = new TableStructureDto();
-                newTableStructureDto.setTableName(parentTableDto.getTableName());
-                newTableStructureDto.setPrimaryKeyName(parentTableDto.getPrimaryKeyName());
+                BasicTableStructureDto newBasicTableStructureDto = new BasicTableStructureDto();
+                newBasicTableStructureDto.setTableName(parentTableDto.getTableName());
+                newBasicTableStructureDto.setPrimaryKeyName(parentTableDto.getPrimaryKeyName());
 
                 MigrationDto newMigrationDto = MigrationDto.builder()
                         .tableName(parentTableDto.getTableName())
-                        .tableStructureDto(newTableStructureDto)
+                        .basicTableStructureDto(newBasicTableStructureDto)
                         .primaryKeys(primaryKeysProd)
                         .isSearchedReference(false)
                         .build();

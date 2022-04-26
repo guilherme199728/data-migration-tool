@@ -36,12 +36,12 @@ public class MigrationDao {
 
                 List<TableDataDto> allTableDataDto = getDataTableByPrimaryKey(
                         migrationDto.getTableName(),
-                        migrationDto.getTableStructureDto().getPrimaryKeyName(), primaryKey
+                        migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
                 );
 
                 String sqlUpdateData = SqlUtils.getStringSqlUpdateData(
                         migrationDto.getTableName(),
-                        migrationDto.getTableStructureDto().getPrimaryKeyName(),
+                        migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
                         allTableDataDto
                 );
                 System.out.println(sqlUpdateData);
