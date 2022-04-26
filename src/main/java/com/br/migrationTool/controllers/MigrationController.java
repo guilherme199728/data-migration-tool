@@ -1,5 +1,7 @@
 package com.br.migrationTool.controllers;
 
+import com.br.migrationTool.configs.MessagePropertiesReader;
+import com.br.migrationTool.dtos.rest.BasicHttpResponse;
 import com.br.migrationTool.dtos.rest.RequestRangeIdsMigrationDto;
 import com.br.migrationTool.dtos.rest.RequestSeparateIdsMigrationDto;
 import com.br.migrationTool.services.MigrationService;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.sql.SQLException;
+import java.text.MessageFormat;
 
 @Controller
 @RequestMapping(value = "/dataMigrationTool")
@@ -20,17 +23,30 @@ public class MigrationController {
     @Autowired
     MigrationService migrationService;
 
+    @Autowired
+    MessagePropertiesReader messagePropertiesReader;
+
     @PostMapping("/migrateBySeparateIds")
-    public ResponseEntity<String> migrateBySeparateIds(@RequestBody RequestSeparateIdsMigrationDto body) throws SQLException {
+    public ResponseEntity<BasicHttpResponse> migrateBySeparateIds(@RequestBody RequestSeparateIdsMigrationDto body) throws SQLException {
         migrationService.migrateBySeparateIds(body);
 
-        return new ResponseEntity<>(body.getTableName() + " Migrado com sucesso!", HttpStatus.OK);
+        BasicHttpResponse basicHttpResponse = new BasicHttpResponse();
+        basicHttpResponse.setMessage(
+            MessageFormat.format(messagePropertiesReader.getMessage("migrate.success"), body.getTableName())
+        );
+
+        return new ResponseEntity<>(basicHttpResponse, HttpStatus.OK);
     }
 
     @PostMapping("/migrateByRangeIds")
-    public ResponseEntity<String> migrateByRangeIds(@RequestBody RequestRangeIdsMigrationDto body) throws SQLException {
+    public ResponseEntity<BasicHttpResponse> migrateByRangeIds(@RequestBody RequestRangeIdsMigrationDto body) throws SQLException {
         migrationService.migrateByRangeIds(body);
 
-        return new ResponseEntity<>(body.getTableName() + " Migrado com sucesso!", HttpStatus.OK);
+        BasicHttpResponse basicHttpResponse = new BasicHttpResponse();
+        basicHttpResponse.setMessage(
+            MessageFormat.format(messagePropertiesReader.getMessage("migrate.success"), body.getTableName())
+        );
+
+        return new ResponseEntity<>(basicHttpResponse, HttpStatus.OK);
     }
 }
