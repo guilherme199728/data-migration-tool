@@ -27,7 +27,9 @@ public class MigrationController {
     MessagePropertiesReader messagePropertiesReader;
 
     @PostMapping("/migrateBySeparateIds")
-    public ResponseEntity<BasicHttpResponse> migrateBySeparateIds(@RequestBody RequestSeparateIdsMigrationDto body) throws SQLException {
+    public ResponseEntity<BasicHttpResponse> migrateBySeparateIds(
+        @RequestBody RequestSeparateIdsMigrationDto body
+    ) throws SQLException {
         migrationService.migrateBySeparateIds(body);
 
         BasicHttpResponse basicHttpResponse = new BasicHttpResponse();
@@ -39,7 +41,9 @@ public class MigrationController {
     }
 
     @PostMapping("/migrateByRangeIds")
-    public ResponseEntity<BasicHttpResponse> migrateByRangeIds(@RequestBody RequestRangeIdsMigrationDto body) throws SQLException {
+    public ResponseEntity<BasicHttpResponse> migrateByRangeIds(
+        @RequestBody RequestRangeIdsMigrationDto body
+    ) throws SQLException {
         migrationService.migrateByRangeIds(body);
 
         BasicHttpResponse basicHttpResponse = new BasicHttpResponse();
