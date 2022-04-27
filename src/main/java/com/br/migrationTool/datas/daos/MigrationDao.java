@@ -67,6 +67,12 @@ public class MigrationDao {
                         String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), allTableDataDto);
                         logger.info(sqlInsertData);
 
+                        ps.clearParameters();
+                        count = 1;
+                        for (TableDataDto tableDataDto : allTableDataDto) {
+                            SqlUtils.setParameterPreparedStatement(count, ps, tableDataDto);
+                            count++;
+                        }
                         ps = conn.prepareStatement(sqlInsertData);
                         ps.executeQuery();
                     }

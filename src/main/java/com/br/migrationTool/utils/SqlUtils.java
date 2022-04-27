@@ -3,9 +3,10 @@ package com.br.migrationTool.utils;
 import com.br.migrationTool.constraints.FieldTypesConstraint;
 import com.br.migrationTool.dtos.migration.TableDataDto;
 
-import java.sql.Blob;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.io.ByteArrayInputStream;
+import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,9 +67,17 @@ public class SqlUtils {
 
             case FieldTypesConstraint.DATE:
                 if (tableDataDto.getFiledData() != null) {
-                    ps.setString(index, "TIMESTAMP '" + tableDataDto.getFiledData() + "'");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    java.util.Date date = null;
+                    try {
+                        date = sdf.parse(tableDataDto.getFiledData());
+                        java.sql.Date sqlDate = new Date(date.getTime());
+                        ps.setDate(index, sqlDate);
+                    } catch (ParseException e) {
+                        ps.setObject(index, null, Types.DATE);
+                    }
                 } else {
-                    ps.setString(index, null);
+                    ps.setObject(index, null, Types.DATE);
                 }
                 break;
 
@@ -82,13 +91,22 @@ public class SqlUtils {
 
             case FieldTypesConstraint.BLOB:
                 if (tableDataDto.getFiledData() != null) {
-                    ps.setBlob(index, BlobUtils.convertHexStringToBlob(tableDataDto.getFiledData()));
+                    ps.setBinaryStream(index, BlobUtils.convertHexStringToBlob(tableDataDto.getFiledData()));
                 } else {
                     ps.setBlob(index, (Blob) null);
                 }
                 break;
-
         }
+    }
+
+    public static String test(int size) {
+
+        List<String> s2 = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            s2.add("?");
+        }
+
+        return "(" + StringUtils.arrangeStringSeparatedByComma(s2) + ")";
     }
 
     public static String arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(List<String> listString) {
@@ -117,12 +135,7 @@ public class SqlUtils {
                 .collect(Collectors.toList())
         );
 
-        String allTableValues = SqlUtils.arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(
-            allTableDataDto
-                .stream()
-                .map(SqlUtils::transformDataToSqlField)
-                .collect(Collectors.toList())
-        );
+        String allTableValues = SqlUtils.test(allTableDataDto.size());
 
         return sqlInsert
             .append("INSERT INTO ")

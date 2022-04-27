@@ -3,21 +3,21 @@ package com.br.migrationTool.utils;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 
-import javax.sql.rowset.serial.SerialBlob;
+import java.io.ByteArrayInputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
 public class BlobUtils {
 
-    public static Blob convertHexStringToBlob(String strBlob) {
+    public static ByteArrayInputStream convertHexStringToBlob(String strBlob) {
         if (strBlob == null ) {
             return null;
         }
 
         try {
             byte[] blobBytes = Hex.decodeHex(strBlob);
-            return new SerialBlob(blobBytes);
-        } catch (DecoderException | SQLException e) {
+            return new ByteArrayInputStream(blobBytes);
+        } catch (DecoderException e) {
             // TODO: tratar o erro aqui
         }
         return null;
