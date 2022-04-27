@@ -59,8 +59,7 @@ public class MigrationDao {
 
                     int count = 1;
                     for (TableDataDto tableDataDto : allTableDataDto) {
-                        SqlUtils.setParameterPreparedStatement(count, ps, tableDataDto);
-                        count++;
+                        SqlUtils.setParameterPreparedStatement(count++, ps, tableDataDto);
                     }
 
                     if (!ps.executeQuery().next()) {
@@ -70,8 +69,7 @@ public class MigrationDao {
                         ps.clearParameters();
                         count = 1;
                         for (TableDataDto tableDataDto : allTableDataDto) {
-                            SqlUtils.setParameterPreparedStatement(count, ps, tableDataDto);
-                            count++;
+                            SqlUtils.setParameterPreparedStatement(count++, ps, tableDataDto);
                         }
                         ps = conn.prepareStatement(sqlInsertData);
                         ps.executeQuery();

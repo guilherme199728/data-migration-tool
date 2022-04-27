@@ -53,7 +53,7 @@ public class SqlUtils {
                 if (tableDataDto.getFiledData() != null) {
                     ps.setString(index, tableDataDto.getFiledData());
                 } else {
-                    ps.setString(index, null);
+                    ps.setObject(index, null, Types.VARCHAR);
                 }
                 break;
 
@@ -61,7 +61,7 @@ public class SqlUtils {
                 if (tableDataDto.getFiledData() != null) {
                     ps.setInt(index, Integer.parseInt(tableDataDto.getFiledData()));
                 } else {
-                    ps.setInt(index, 0);
+                    ps.setObject(index, null, Types.NUMERIC);
                 }
                 break;
 
@@ -85,7 +85,7 @@ public class SqlUtils {
                 if (tableDataDto.getFiledData() != null) {
                     ps.setFloat(index, Float.parseFloat(tableDataDto.getFiledData()));
                 } else {
-                    ps.setFloat(index, 0);
+                    ps.setObject(index, null, Types.FLOAT);
                 }
                 break;
 
@@ -93,7 +93,7 @@ public class SqlUtils {
                 if (tableDataDto.getFiledData() != null) {
                     ps.setBinaryStream(index, BlobUtils.convertHexStringToBlob(tableDataDto.getFiledData()));
                 } else {
-                    ps.setBlob(index, (Blob) null);
+                    ps.setObject(index, null, Types.BLOB);
                 }
                 break;
         }
