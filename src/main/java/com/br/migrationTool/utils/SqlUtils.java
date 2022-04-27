@@ -3,6 +3,9 @@ package com.br.migrationTool.utils;
 import com.br.migrationTool.constraints.FieldTypesConstraint;
 import com.br.migrationTool.dtos.migration.TableDataDto;
 
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +44,53 @@ public class SqlUtils {
         return null;
     }
 
+    public static void setParameterPreparedStatement(int index, PreparedStatement ps, TableDataDto tableDataDto) throws SQLException {
+
+        switch (tableDataDto.getFiledType()) {
+            case FieldTypesConstraint.VARCHAR_2:
+            case FieldTypesConstraint.CHAR:
+                if (tableDataDto.getFiledData() != null) {
+                    ps.setString(index, tableDataDto.getFiledData());
+                } else {
+                    ps.setString(index, null);
+                }
+                break;
+
+            case FieldTypesConstraint.NUMBER:
+                if (tableDataDto.getFiledData() != null) {
+                    ps.setInt(index, Integer.parseInt(tableDataDto.getFiledData()));
+                } else {
+                    ps.setInt(index, 0);
+                }
+                break;
+
+            case FieldTypesConstraint.DATE:
+                if (tableDataDto.getFiledData() != null) {
+                    ps.setString(index, "TIMESTAMP '" + tableDataDto.getFiledData() + "'");
+                } else {
+                    ps.setString(index, null);
+                }
+                break;
+
+            case FieldTypesConstraint.FLOAT:
+                if (tableDataDto.getFiledData() != null) {
+                    ps.setFloat(index, Float.parseFloat(tableDataDto.getFiledData()));
+                } else {
+                    ps.setFloat(index, 0);
+                }
+                break;
+
+            case FieldTypesConstraint.BLOB:
+                if (tableDataDto.getFiledData() != null) {
+                    ps.setBlob(index, BlobUtils.convertHexStringToBlob(tableDataDto.getFiledData()));
+                } else {
+                    ps.setBlob(index, (Blob) null);
+                }
+                break;
+
+        }
+    }
+
     public static String arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(List<String> listString) {
         return "(" + StringUtils.arrangeStringSeparatedByComma(listString) + ")";
     }
@@ -50,7 +100,7 @@ public class SqlUtils {
         List<String> allTableData = new ArrayList<>();
 
         for (TableDataDto tableDataDto : allTableDataDto) {
-            allTableData.add(tableDataDto.getFieldName() + " = " + SqlUtils.transformDataToSqlField(tableDataDto));
+            allTableData.add(tableDataDto.getFieldName() + " = ?");
         }
 
         return StringUtils.arrangeStringSeparatedByComma(allTableData);

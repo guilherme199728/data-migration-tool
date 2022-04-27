@@ -4,6 +4,7 @@ import com.br.migrationTool.constraints.querys.MigrationQueryConstraint;
 import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
 import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.dtos.migration.TableDataDto;
+import com.br.migrationTool.utils.BlobUtils;
 import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.SqlUtils;
 import com.br.migrationTool.utils.StringUtils;
@@ -55,6 +56,12 @@ public class MigrationDao {
 
                     conn = connectionOracleJDBC.getConnection(false);
                     ps = conn.prepareStatement(sqlUpdateData);
+
+                    int count = 1;
+                    for (TableDataDto tableDataDto : allTableDataDto) {
+                        SqlUtils.setParameterPreparedStatement(count, ps, tableDataDto);
+                        count++;
+                    }
 
                     if (!ps.executeQuery().next()) {
                         String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), allTableDataDto);
@@ -114,7 +121,7 @@ public class MigrationDao {
 
     private String correctFieldData(Map.Entry<String, String> column, ResultSet rs) throws SQLException {
         return column.getValue().equals("BLOB") ?
-            null :
+            BlobUtils.convertBlobToHexString(rs.getBlob(column.getKey())) :
             rs.getString(column.getKey());
     }
 }
