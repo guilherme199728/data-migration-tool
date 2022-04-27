@@ -16,10 +16,7 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,18 +99,23 @@ public class TableReferencesDao {
         String tableName, boolean isProd
     ) throws SQLException {
 
-        String sql = TableReferenceQueryConstraint.GET_PRIMARY_KEY_NAME;
-
-        String owner = ownerUtils.getOwner(isProd);
-
-        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
-        ps.setString(1, owner);
-        ps.setString(2, tableName);
-        ResultSet rs = ps.executeQuery();
-
+        ResultSet rs = null;
+        PreparedStatement ps = null;
         String primaryKeyNames = null;
-        while (rs.next()) {
-            primaryKeyNames = rs.getString("COLUMN_NAME");
+
+        try {
+            String sql = TableReferenceQueryConstraint.GET_PRIMARY_KEY_NAME;
+
+            ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+            ps.setString(1, ownerUtils.getOwner(isProd));
+            ps.setString(2, tableName);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                primaryKeyNames = rs.getString("COLUMN_NAME");
+            }
+        } finally {
+            connectionOracleJDBC.close(ps, rs);
         }
 
         return primaryKeyNames;
@@ -124,33 +126,38 @@ public class TableReferencesDao {
     ) throws SQLException {
 
         int offSet = 950;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<String> allPrimaryKeys = new ArrayList<>();
 
-        String sql = TableReferenceQueryConstraint.GET_PRIMARY_KEYS_BY_PARENT_TABLE +
-            getPrimaryKeysConcatenatedByOffSet(
+        try {
+            String sql = TableReferenceQueryConstraint.GET_PRIMARY_KEYS_BY_PARENT_TABLE +
+                getPrimaryKeysConcatenatedByOffSet(
+                    parentTableDto.getForeingKeyName(),
+                    migrationDto.getPrimaryKeys(),
+                    offSet
+                );
+
+            String sqlBuilt = String.format(
+                sql,
                 parentTableDto.getForeingKeyName(),
-                migrationDto.getPrimaryKeys(),
-                offSet
+                ownerUtils.getOwner(isProd),
+                migrationDto.getTableName(),
+                ownerUtils.getOwner(isProd),
+                parentTableDto.getTableName(),
+                parentTableDto.getForeingKeyName(),
+                parentTableDto.getPrimaryKeyName(),
+                migrationDto.getBasicTableStructureDto().getPrimaryKeyName()
             );
 
-        String sqlBuilt = String.format(
-            sql,
-            parentTableDto.getForeingKeyName(),
-            ownerUtils.getOwner(isProd),
-            migrationDto.getTableName(),
-            ownerUtils.getOwner(isProd),
-            parentTableDto.getTableName(),
-            parentTableDto.getForeingKeyName(),
-            parentTableDto.getPrimaryKeyName(),
-            migrationDto.getBasicTableStructureDto().getPrimaryKeyName()
+            ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
+            rs = ps.executeQuery();
 
-        );
-
-        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
-        ResultSet rs = ps.executeQuery();
-
-        List<String> allPrimaryKeys = new ArrayList<>();
-        while (rs.next()) {
-            allPrimaryKeys.add(rs.getString(parentTableDto.getForeingKeyName()));
+            while (rs.next()) {
+                allPrimaryKeys.add(rs.getString(parentTableDto.getForeingKeyName()));
+            }
+        } finally {
+            connectionOracleJDBC.close(ps, rs);
         }
 
         return allPrimaryKeys;
@@ -160,23 +167,29 @@ public class TableReferencesDao {
         String tableName, String primaryKeyName, String whereColum, List<String> primaryKeys, boolean isProd
     ) throws SQLException {
 
-        String primaryKeyString = StringUtils.arrangeStringSeparatedByComma(primaryKeys);
-        String sql = String.format(
-            TableReferenceQueryConstraint.GET_PRIMARY_KEYS,
-            primaryKeyName,
-            ownerUtils.getOwner(isProd),
-            tableName,
-            whereColum,
-            primaryKeyString
-        );
-
-        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
-        ResultSet rs = ps.executeQuery();
-
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         List<String> allNamesColumnsTable = new ArrayList<>();
 
-        while (rs.next()) {
-            allNamesColumnsTable.add(rs.getString(primaryKeyName));
+        try {
+            String primaryKeyString = StringUtils.arrangeStringSeparatedByComma(primaryKeys);
+            String sql = String.format(
+                TableReferenceQueryConstraint.GET_PRIMARY_KEYS,
+                primaryKeyName,
+                ownerUtils.getOwner(isProd),
+                tableName,
+                whereColum,
+                primaryKeyString
+            );
+
+            ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                allNamesColumnsTable.add(rs.getString(primaryKeyName));
+            }
+        } finally {
+            connectionOracleJDBC.close(ps, rs);
         }
 
         return allNamesColumnsTable;

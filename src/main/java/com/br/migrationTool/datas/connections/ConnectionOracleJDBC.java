@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Configuration
@@ -14,11 +16,9 @@ public class ConnectionOracleJDBC {
     @Autowired
     @Qualifier("megaStoreDataSourceHml")
     DataSource dataSourceHomolog;
-
     @Autowired
     @Qualifier("megaStoreDataSourceProd")
     DataSource dataSourceProd;
-
     Connection connectionProd;
     Connection connectionHomolog;
 
@@ -40,5 +40,14 @@ public class ConnectionOracleJDBC {
         }
 
         return connectionHomolog;
+    }
+
+    public void close(PreparedStatement ps, ResultSet rs) throws SQLException {
+        if (ps != null) {
+            ps.close();
+        }
+        if (rs != null) {
+            rs.close();
+        }
     }
 }

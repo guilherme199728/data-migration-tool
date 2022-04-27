@@ -16,19 +16,26 @@ public class SqlUtils {
             case FieldTypesConstraint.CHAR:
                 if (tableDataDto.getFiledData() == null) {
                     return "''";
-                } else {
-                    return "'" + tableDataDto.getFiledData() + "'";
                 }
+
+                return "'" + tableDataDto.getFiledData() + "'";
+
             case FieldTypesConstraint.NUMBER:
                 return tableDataDto.getFiledData();
             case FieldTypesConstraint.DATE:
                 if (tableDataDto.getFiledData() != null) {
-                    return "TIMESTAMP " + "'" + tableDataDto.getFiledData() + "'";
+                    return "TIMESTAMP '" + tableDataDto.getFiledData() + "'";
                 }
             case FieldTypesConstraint.FLOAT:
                 if (tableDataDto.getFiledData() != null) {
                     return Float.valueOf(tableDataDto.getFiledData()).toString();
                 }
+            case FieldTypesConstraint.BLOB:
+                if (tableDataDto.getFiledData() == null) {
+                    return null;
+                }
+
+                return "'" + tableDataDto.getFiledData() + "'";
         }
 
         return null;

@@ -1,17 +1,23 @@
 package com.br.migrationTool.useCases;
 
+import com.br.migrationTool.configs.MessagePropertiesReader;
 import com.br.migrationTool.datas.daos.MigrationDao;
 import com.br.migrationTool.datas.daos.TableReferencesDao;
 import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.dtos.migration.ParentTableDto;
 import com.br.migrationTool.dtos.migration.BasicTableStructureDto;
+import com.br.migrationTool.dtos.migration.TableDataDto;
 import com.br.migrationTool.validations.MigrationValidation;
 import com.br.migrationTool.vos.MigrationVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class MigrationUseCase {
@@ -24,6 +30,11 @@ public class MigrationUseCase {
 
     @Autowired
     MigrationValidation migrationValidation;
+
+    @Autowired
+    MessagePropertiesReader messagePropertiesReader;
+
+    private static final Logger logger = LoggerFactory.getLogger(MigrationUseCase.class);
 
     public void process(String tableName, List<String> ids) throws SQLException {
         addInitialTableToMigrationListByRange(tableName, ids);
@@ -81,11 +92,60 @@ public class MigrationUseCase {
                         migrationDto.getTableName(), true
                     );
 
+                    searchFieldsWithoutReference(migrationDto, parentTableDtos);
+
                     if (parentTableDtos.size() > 0) {
                         addParentsToMigrationList(parentTableDtos, migrationDto);
                         MigrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
                     } else {
                         MigrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
+                    }
+                }
+            }
+        }
+    }
+
+    private void searchFieldsWithoutReference(
+        MigrationDto migrationDto, List<ParentTableDto> parentTableDtos
+    ) throws SQLException {
+
+        HashMap<String, String> allNamesAndTypeColumns = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
+            migrationDto.getTableName(), false
+        );
+
+        allNamesAndTypeColumns.remove(migrationDto.getBasicTableStructureDto().getPrimaryKeyName());
+
+        for (Map.Entry<String, String> set : allNamesAndTypeColumns.entrySet()) {
+
+            String fieldTable = set.getKey();
+
+            if (fieldTable.startsWith("ID")) {
+                String tableNameByField = fieldTable.replace("ID", "T_");
+
+                int tableShared = parentTableDtos.stream()
+                    .filter(parentTableDto -> parentTableDto.getTableName().equals(tableNameByField))
+                    .toList()
+                    .size();
+
+                if (tableShared == 0) {
+
+                    try {
+                        HashMap<String, String> allNamesAndTypeColumnsWithoutReference = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
+                            tableNameByField, false
+                        );
+
+                        if (allNamesAndTypeColumnsWithoutReference.containsKey(fieldTable)) {
+                            ParentTableDto parentTableDto = new ParentTableDto();
+                            parentTableDto.setTableName(tableNameByField);
+                            parentTableDto.setPrimaryKeyName(fieldTable);
+                            parentTableDto.setForeingKeyName(fieldTable);
+                            parentTableDtos.add(parentTableDto);
+                        }
+                    } catch (SQLException e) {
+                        logger.error(messagePropertiesReader.getMessage(
+                                MessageFormat.format("table.without.reference.item.not.found", tableNameByField)
+                            )
+                        );
                     }
                 }
             }
