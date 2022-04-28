@@ -36,8 +36,8 @@ public class MigrationValidation {
         }
     }
 
-    public void isAllMigratedItems(List<MigrationDto> allMigrationDto) {
-        if (allMigrationDto.size() == 0) {
+    public void isAllMigratedItems(List<MigrationDto> MigrationDtos) {
+        if (MigrationDtos.size() == 0) {
             throw new AllItemsMigratedException(messagePropertiesReader.getMessage("all.migrated.items"));
         }
     }

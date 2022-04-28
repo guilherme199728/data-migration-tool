@@ -24,17 +24,17 @@ public class MigrationDao {
     ConnectionOracleJDBC connectionOracleJDBC;
     private static final Logger logger = LoggerFactory.getLogger(MigrationDao.class);
 
-    public void executeMigration(List<MigrationDto> allMigration) throws SQLException {
+    public void executeMigration(List<MigrationDto> migrationDtos) throws SQLException {
 
-        Collections.reverse(allMigration);
+        Collections.reverse(migrationDtos);
         Connection conn;
         PreparedStatement ps = null;
 
         try {
-            for (MigrationDto migrationDto : allMigration) {
+            for (MigrationDto migrationDto : migrationDtos) {
                 for (String primaryKey : migrationDto.getPrimaryKeys()) {
 
-                    List<TableDataDto> allTableDataDto = dataTableDao.getDataTableByPrimaryKey(
+                    List<TableDataDto> tableDataDtos = dataTableDao.getDataTableByPrimaryKey(
                         migrationDto.getTableName(),
                         migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
                     );
@@ -42,7 +42,7 @@ public class MigrationDao {
                     String sqlUpdateData = SqlUtils.getStringSqlUpdateData(
                         migrationDto.getTableName(),
                         migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
-                        allTableDataDto
+                        tableDataDtos
                     );
                     logger.info(sqlUpdateData);
 
@@ -50,7 +50,7 @@ public class MigrationDao {
                     ps = conn.prepareStatement(sqlUpdateData);
 
                     if (!ps.executeQuery().next()) {
-                        String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), allTableDataDto);
+                        String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), tableDataDtos);
                         logger.info(sqlInsertData);
 
                         ps = conn.prepareStatement(sqlInsertData);

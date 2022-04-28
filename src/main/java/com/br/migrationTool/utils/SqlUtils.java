@@ -51,30 +51,30 @@ public class SqlUtils {
         return "(" + StringUtils.arrangeStringSeparatedByComma(listString) + ")";
     }
 
-    public static String arrangeStringUpdateSqlSeparatedByCommaByListTableDataDto(List<TableDataDto> allTableDataDto) {
+    public static String arrangeStringUpdateSqlSeparatedByCommaByListTableDataDto(List<TableDataDto> tableDataDtos) {
 
-        List<String> allTableData = new ArrayList<>();
+        List<String> TablesData = new ArrayList<>();
 
-        for (TableDataDto tableDataDto : allTableDataDto) {
-            allTableData.add(tableDataDto.getFieldName() + " = " + SqlUtils.transformDataToSqlField(tableDataDto));
+        for (TableDataDto tableDataDto : tableDataDtos) {
+            TablesData.add(tableDataDto.getFieldName() + " = " + SqlUtils.transformDataToSqlField(tableDataDto));
         }
 
-        return StringUtils.arrangeStringSeparatedByComma(allTableData);
+        return StringUtils.arrangeStringSeparatedByComma(TablesData);
     }
 
-    public static String getStringSqlInsertData(String tableName, List<TableDataDto> allTableDataDto) {
+    public static String getStringSqlInsertData(String tableName, List<TableDataDto> tableDataDtos) {
 
         StringBuilder sqlInsert = new StringBuilder();
 
-        String allTableFields = SqlUtils.arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(
-            allTableDataDto
+        String tableFields = SqlUtils.arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(
+            tableDataDtos
                 .stream()
                 .map(TableDataDto::getFieldName)
                 .collect(Collectors.toList())
         );
 
-        String allTableValues = SqlUtils.arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(
-            allTableDataDto
+        String tableValues = SqlUtils.arrangeStringInsertSqlSeparatedByCommaAndInsideParenthesesByListString(
+            tableDataDtos
                 .stream()
                 .map(SqlUtils::transformDataToSqlField)
                 .collect(Collectors.toList())
@@ -84,26 +84,26 @@ public class SqlUtils {
             .append("INSERT INTO ")
             .append(tableName)
             .append(" ")
-            .append(allTableFields)
+            .append(tableFields)
             .append(" VALUES ")
-            .append(allTableValues)
+            .append(tableValues)
             .toString();
     }
 
-    public static String getStringSqlUpdateData(String tableName, String primaryKeyName, List<TableDataDto> allTableDataDto) {
+    public static String getStringSqlUpdateData(String tableName, String primaryKeyName, List<TableDataDto> tableDataDtos) {
 
         StringBuilder sqlUpdate = new StringBuilder();
-        String allTableFields = SqlUtils.arrangeStringUpdateSqlSeparatedByCommaByListTableDataDto(allTableDataDto);
+        String tableFields = SqlUtils.arrangeStringUpdateSqlSeparatedByCommaByListTableDataDto(tableDataDtos);
 
         return sqlUpdate
             .append("UPDATE ")
             .append(tableName)
             .append(" SET ")
-            .append(allTableFields)
+            .append(tableFields)
             .append(" WHERE ")
             .append(primaryKeyName)
             .append(" = ")
-            .append(getPkValueByPkName(primaryKeyName, allTableDataDto))
+            .append(getPkValueByPkName(primaryKeyName, tableDataDtos))
             .toString();
     }
 

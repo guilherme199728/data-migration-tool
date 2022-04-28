@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class MigrationUseCase {
@@ -94,16 +93,16 @@ public class MigrationUseCase {
             for (MigrationDto migrationDto : migrationsDto) {
 
                 if (!migrationDto.isSearchedReference()) {
-                    List<ParentTableDto> parentTableDtos = tableReferencesDao.getParentTablesFromConstraint(
+                    List<BasicTableStructureDto> parentTables = tableReferencesDao.getParentTablesFromConstraint(
                         migrationDto.getTableName(), true
                     );
 
                     if (searchFieldsWithoutReference) {
-                        searchFieldsWithoutReference(migrationDto, parentTableDtos);
+                        searchFieldsWithoutReference(migrationDto, parentTables);
                     }
 
-                    if (parentTableDtos.size() > 0) {
-                        addParentsToMigrationList(parentTableDtos, migrationDto);
+                    if (parentTables.size() > 0) {
+                        addParentsToMigrationList(parentTables, migrationDto);
                         migrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
                     } else {
                         migrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
@@ -114,7 +113,7 @@ public class MigrationUseCase {
     }
 
     private void searchFieldsWithoutReference(
-        MigrationDto migrationDto, List<ParentTableDto> parentTableDtos
+        MigrationDto migrationDto, List<BasicTableStructureDto> parentTables
     ) throws SQLException {
 
         List<NamesTypesFieldsTableDto> namesTypesFieldsTableDtos =
@@ -133,7 +132,7 @@ public class MigrationUseCase {
             if (namesTypesFieldsTableDto.getFieldName().startsWith(prefixId)) {
                 String tableNameByField = namesTypesFieldsTableDto.getFieldName().replace(prefixId, prefixTable);
 
-                int tableShared = parentTableDtos.stream()
+                int tableShared = parentTables.stream()
                     .filter(parentTableDto -> parentTableDto.getTableName().equals(tableNameByField))
                     .toList()
                     .size();
@@ -147,11 +146,11 @@ public class MigrationUseCase {
                             );
 
                         if (isFieldWithoutReference(namesTypesFieldsTableDto, namesTypesFieldsTableDtosWithoutReference)) {
-                            ParentTableDto parentTableDto = new ParentTableDto();
-                            parentTableDto.setTableName(tableNameByField);
-                            parentTableDto.setPrimaryKeyName(namesTypesFieldsTableDto.getFieldName());
-                            parentTableDto.setForeingKeyName(namesTypesFieldsTableDto.getFieldName());
-                            parentTableDtos.add(parentTableDto);
+                            BasicTableStructureDto parentTable = new BasicTableStructureDto();
+                            parentTable.setTableName(tableNameByField);
+                            parentTable.setPrimaryKeyName(namesTypesFieldsTableDto.getFieldName());
+                            parentTable.setForeignKeyName(namesTypesFieldsTableDto.getFieldName());
+                            parentTables.add(parentTable);
                         }
                     } catch (SQLException e) {
                         logger.error(messagePropertiesReader.getMessage(
@@ -173,22 +172,22 @@ public class MigrationUseCase {
     }
 
     private void addParentsToMigrationList(
-        List<ParentTableDto> parentTableDtos, MigrationDto migrationDto
+        List<BasicTableStructureDto> parentTables, MigrationDto migrationDto
     ) throws SQLException {
 
-        for (ParentTableDto parentTableDto : parentTableDtos) {
+        for (BasicTableStructureDto parentTable : parentTables) {
 
             List<String> primaryKeysProd = dataTableDao.getPrimaryKeysByParentTable(
-                migrationDto, parentTableDto, true
+                migrationDto, parentTable, true
             );
 
             if (!primaryKeysProd.isEmpty()) {
                 BasicTableStructureDto newBasicTableStructureDto = new BasicTableStructureDto();
-                newBasicTableStructureDto.setTableName(parentTableDto.getTableName());
-                newBasicTableStructureDto.setPrimaryKeyName(parentTableDto.getPrimaryKeyName());
+                newBasicTableStructureDto.setTableName(parentTable.getTableName());
+                newBasicTableStructureDto.setPrimaryKeyName(parentTable.getPrimaryKeyName());
 
                 MigrationDto newMigrationDto = MigrationDto.builder()
-                    .tableName(parentTableDto.getTableName())
+                    .tableName(parentTable.getTableName())
                     .basicTableStructureDto(newBasicTableStructureDto)
                     .primaryKeys(primaryKeysProd)
                     .isSearchedReference(false)

@@ -3,9 +3,9 @@ package com.br.migrationTool.datas.daos;
 import com.br.migrationTool.constraints.querys.MigrationQueryConstraint;
 import com.br.migrationTool.constraints.querys.TableReferenceQueryConstraint;
 import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
+import com.br.migrationTool.dtos.migration.BasicTableStructureDto;
 import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.dtos.migration.NamesTypesFieldsTableDto;
-import com.br.migrationTool.dtos.migration.ParentTableDto;
 import com.br.migrationTool.dtos.migration.TableDataDto;
 import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.SqlUtils;
@@ -34,7 +34,7 @@ public class DataTableDao {
 
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<TableDataDto> allTableDataDto = new ArrayList<>();
+        List<TableDataDto> tableDataDtos = new ArrayList<>();
 
         try {
             String sql = String.format(
@@ -61,14 +61,14 @@ public class DataTableDao {
                         .filedType(namesTypesFieldsTableDto.getFieldType())
                         .build();
 
-                    allTableDataDto.add(tableDataDto);
+                    tableDataDtos.add(tableDataDto);
                 }
             }
         } finally {
             connectionOracleJDBC.close(ps, rs);
         }
 
-        return allTableDataDto;
+        return tableDataDtos;
     }
 
     private String correctFieldData(
@@ -81,29 +81,29 @@ public class DataTableDao {
     }
 
     public List<String> getPrimaryKeysByParentTable(
-        MigrationDto migrationDto, ParentTableDto parentTableDto, boolean isProd
+        MigrationDto migrationDto, BasicTableStructureDto parentTables, boolean isProd
     ) throws SQLException {
 
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<String> allPrimaryKeys = new ArrayList<>();
+        List<String> primaryKeys = new ArrayList<>();
 
         try {
             String sql = TableReferenceQueryConstraint.GET_PRIMARY_KEYS_BY_PARENT_TABLE +
                 SqlUtils.getPrimaryKeysConcatenatedByOffSet(
-                    parentTableDto.getForeingKeyName(),
+                    parentTables.getForeignKeyName(),
                     migrationDto.getPrimaryKeys()
                 );
 
             String sqlBuilt = String.format(
                 sql,
-                parentTableDto.getForeingKeyName(),
+                parentTables.getForeignKeyName(),
                 ownerUtils.getOwner(isProd),
                 migrationDto.getTableName(),
                 ownerUtils.getOwner(isProd),
-                parentTableDto.getTableName(),
-                parentTableDto.getForeingKeyName(),
-                parentTableDto.getPrimaryKeyName(),
+                parentTables.getTableName(),
+                parentTables.getForeignKeyName(),
+                parentTables.getPrimaryKeyName(),
                 migrationDto.getBasicTableStructureDto().getPrimaryKeyName()
             );
 
@@ -111,12 +111,12 @@ public class DataTableDao {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                allPrimaryKeys.add(rs.getString(parentTableDto.getForeingKeyName()));
+                primaryKeys.add(rs.getString(parentTables.getForeignKeyName()));
             }
         } finally {
             connectionOracleJDBC.close(ps, rs);
         }
 
-        return allPrimaryKeys;
+        return primaryKeys;
     }
 }
