@@ -2,7 +2,10 @@ package com.br.migrationTool.datas.daos;
 
 import com.br.migrationTool.constraints.querys.TableReferenceQueryConstraint;
 import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
-import com.br.migrationTool.dtos.migration.*;
+import com.br.migrationTool.dtos.migration.BasicTableStructureDto;
+import com.br.migrationTool.dtos.migration.ChildrenTableDto;
+import com.br.migrationTool.dtos.migration.NamesTypesFieldsTableDto;
+import com.br.migrationTool.dtos.migration.ParentTableDto;
 import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.StringUtils;
 import org.apache.commons.dbutils.QueryRunner;

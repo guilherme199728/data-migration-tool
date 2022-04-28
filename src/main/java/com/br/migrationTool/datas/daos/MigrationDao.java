@@ -1,14 +1,9 @@
 package com.br.migrationTool.datas.daos;
 
-import com.br.migrationTool.constraints.querys.MigrationQueryConstraint;
 import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
 import com.br.migrationTool.dtos.migration.MigrationDto;
-import com.br.migrationTool.dtos.migration.NamesTypesFieldsTableDto;
 import com.br.migrationTool.dtos.migration.TableDataDto;
-import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.SqlUtils;
-import com.br.migrationTool.utils.StringUtils;
-import com.br.migrationTool.vos.MigrationVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class MigrationDao {
@@ -27,8 +22,6 @@ public class MigrationDao {
     DataTableDao dataTableDao;
     @Autowired
     ConnectionOracleJDBC connectionOracleJDBC;
-    @Autowired
-    OwnerUtils ownerUtils;
     private static final Logger logger = LoggerFactory.getLogger(MigrationDao.class);
 
     public void executeMigration(List<MigrationDto> allMigration) throws SQLException {
