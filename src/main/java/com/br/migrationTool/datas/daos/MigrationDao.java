@@ -39,22 +39,11 @@ public class MigrationDao {
                         migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
                     );
 
-                    String sqlUpdateData = SqlUtils.getStringSqlUpdateData(
-                        migrationDto.getTableName(),
-                        migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
-                        tableDataDtos
-                    );
-                    logger.info(sqlUpdateData);
-
                     conn = connectionOracleJDBC.getConnection(false);
-                    ps = conn.prepareStatement(sqlUpdateData);
+                    ps = executeUpdate(conn, migrationDto, tableDataDtos);
 
-                    if (!ps.executeQuery().next()) {
-                        String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), tableDataDtos);
-                        logger.info(sqlInsertData);
-
-                        ps = conn.prepareStatement(sqlInsertData);
-                        ps.executeQuery();
+                    if (isUpdateNotExecuted(ps)) {
+                        executeInsert(conn, migrationDto, tableDataDtos);
                     }
                 }
             }
@@ -62,4 +51,39 @@ public class MigrationDao {
             connectionOracleJDBC.close(ps, null);
         }
     }
+
+    private PreparedStatement executeUpdate(
+        Connection conn, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
+    ) throws SQLException {
+
+        String sqlUpdateData = SqlUtils.getStringSqlUpdateData(
+            migrationDto.getTableName(),
+            migrationDto.getBasicTableStructureDto().getPrimaryKeyName(),
+            tableDataDtos
+        );
+        logger.info(sqlUpdateData);
+        return conn.prepareStatement(sqlUpdateData);
+    }
+
+    private void executeInsert(
+        Connection conn, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
+    ) throws SQLException {
+
+        PreparedStatement ps = null;
+
+        try {
+            String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), tableDataDtos);
+            logger.info(sqlInsertData);
+
+            ps = conn.prepareStatement(sqlInsertData);
+            ps.executeQuery();
+        } finally {
+            connectionOracleJDBC.close(ps, null);
+        }
+    }
+
+    private boolean isUpdateNotExecuted(PreparedStatement ps) throws SQLException {
+        return !ps.executeQuery().next();
+    }
+
 }
