@@ -4,6 +4,7 @@ import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
 import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.dtos.migration.TableDataDto;
 import com.br.migrationTool.utils.SqlUtils;
+import oracle.jdbc.proxy.annotation.Pre;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,9 @@ public class MigrationDao {
         Connection conn;
         PreparedStatement ps = null;
 
-        try {
-            for (MigrationDto migrationDto : migrationDtos) {
-                for (String primaryKey : migrationDto.getPrimaryKeys()) {
-
+        for (MigrationDto migrationDto : migrationDtos) {
+            for (String primaryKey : migrationDto.getPrimaryKeys()) {
+                try {
                     List<TableDataDto> tableDataDtos = dataTableDao.getDataTableByPrimaryKey(
                         migrationDto.getTableName(),
                         migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
@@ -44,12 +44,12 @@ public class MigrationDao {
                     ps = executeUpdate(conn, migrationDto, tableDataDtos);
 
                     if (isUpdateNotExecuted(ps)) {
-                        executeInsert(conn, migrationDto, tableDataDtos);
+                        executeInsert(ps, conn, migrationDto, tableDataDtos);
                     }
+                } finally {
+                    connectionOracleJDBC.close(ps, null);
                 }
             }
-        } finally {
-            connectionOracleJDBC.close(ps, null);
         }
     }
 
@@ -68,20 +68,14 @@ public class MigrationDao {
     }
 
     private void executeInsert(
-        Connection conn, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
+        PreparedStatement ps, Connection conn, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
     ) throws SQLException {
 
-        PreparedStatement ps = null;
+        String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), tableDataDtos);
+        logger.info(sqlInsertData);
 
-        try {
-            String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), tableDataDtos);
-            logger.info(sqlInsertData);
-
-            ps = conn.prepareStatement(sqlInsertData);
-            ps.executeQuery();
-        } finally {
-            connectionOracleJDBC.close(ps, null);
-        }
+        ps = conn.prepareStatement(sqlInsertData);
+        ps.executeQuery();
     }
 
     private boolean isUpdateNotExecuted(PreparedStatement ps) throws SQLException {
