@@ -4,6 +4,7 @@ import com.br.migrationTool.dtos.migration.MigrationDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,38 +13,39 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Builder
+@Component
 public class MigrationVo {
-    private static List<MigrationDto> listMigrationVo = new ArrayList<>();
+    private List<MigrationDto> listMigrationVo;
 
-    public static List<MigrationDto> getListMigration() {
+    public List<MigrationDto> getListMigration() {
         return listMigrationVo;
     }
 
-    public static List<String> getPrimaryKeysMigrationByTableName(String tableName) {
+    public List<String> getPrimaryKeysMigrationByTableName(String tableName) {
         return getMigrationByTableName(tableName).getPrimaryKeys();
     }
 
-    public static List<String> getAllTableInMigrationList() {
-        return MigrationVo.getListMigration().stream().map(MigrationDto::getTableName)
+    public List<String> getAllTableInMigrationList() {
+        return getListMigration().stream().map(MigrationDto::getTableName)
             .collect(Collectors.toList());
     }
 
-    public static MigrationDto getMigrationByTableName(String tableName) {
+    public MigrationDto getMigrationByTableName(String tableName) {
         return listMigrationVo.stream().filter(migrationVo -> migrationVo.getTableName().equals(tableName)).findAny().orElse(null);
     }
 
-    public static void removePrimaryKeysListMigrationByTableName(String tableName, List<String> primaryKeys) {
+    public void removePrimaryKeysListMigrationByTableName(String tableName, List<String> primaryKeys) {
         MigrationDto migrationDto = getMigrationByTableName(tableName);
 
         primaryKeys.forEach(primaryKeyForRemove -> migrationDto.getPrimaryKeys().remove(primaryKeyForRemove));
 
         if (migrationDto.getPrimaryKeys().size() == 0) {
-            MigrationVo.getListMigration().remove(migrationDto);
+            getListMigration().remove(migrationDto);
         }
 
     }
 
-    public static void setListMigration(MigrationDto migrationDto) {
+    public void setListMigration(MigrationDto migrationDto) {
         MigrationDto migrationDtoExisting = getMigrationByTableName(migrationDto.getTableName());
         if (migrationDtoExisting != null) {
             for (String primaryKey : migrationDto.getPrimaryKeys()) {
@@ -63,19 +65,19 @@ public class MigrationVo {
         }
     }
 
-    public static boolean isAllReferencesSearched() {
+    public boolean isAllReferencesSearched() {
         return listMigrationVo.stream().filter(migrationDto -> ((Boolean) migrationDto.isSearchedReference()).equals(false)).findAny().orElse(null) != null;
     }
 
-    public static void setSearchedReferenceByTableName(String tableName, boolean isSearchedReference) {
+    public void setSearchedReferenceByTableName(String tableName, boolean isSearchedReference) {
         getMigrationByTableName(tableName).setSearchedReference(isSearchedReference);
     }
 
-    public static void clearMigrationList() {
+    public void clearMigrationList() {
         listMigrationVo = new ArrayList<>();
     }
 
-    public static List<MigrationDto> cloneMigration() {
+    public List<MigrationDto> cloneMigration() {
         return new ArrayList<>(listMigrationVo);
     }
 }

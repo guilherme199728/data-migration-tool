@@ -30,9 +30,8 @@ public class MigrationDao {
     OwnerUtils ownerUtils;
     private static final Logger logger = LoggerFactory.getLogger(MigrationDao.class);
 
-    public void executeMigration() throws SQLException {
+    public void executeMigration(List<MigrationDto> allMigration) throws SQLException {
 
-        List<MigrationDto> allMigration = MigrationVo.getListMigration();
         Collections.reverse(allMigration);
         Connection conn;
         PreparedStatement ps = null;

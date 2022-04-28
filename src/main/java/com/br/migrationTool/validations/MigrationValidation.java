@@ -5,7 +5,6 @@ import com.br.migrationTool.dtos.migration.MigrationDto;
 import com.br.migrationTool.exceptions.AllItemsMigratedException;
 import com.br.migrationTool.exceptions.ItemLimitMigrationExceededException;
 import com.br.migrationTool.exceptions.ItemNotFoundException;
-import com.br.migrationTool.vos.MigrationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -38,7 +37,7 @@ public class MigrationValidation {
     }
 
     public void isAllMigratedItems(List<MigrationDto> allMigrationDto) {
-        if (MigrationVo.getListMigration().size() == 0) {
+        if (allMigrationDto.size() == 0) {
             throw new AllItemsMigratedException(messagePropertiesReader.getMessage("all.migrated.items"));
         }
     }

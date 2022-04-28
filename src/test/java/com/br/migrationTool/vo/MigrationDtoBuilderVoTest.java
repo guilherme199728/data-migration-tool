@@ -3,6 +3,8 @@ package com.br.migrationTool.vo;
 import com.br.migrationTool.vos.MigrationVo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashSet;
 import java.util.List;
@@ -14,12 +16,16 @@ import static com.br.migrationTool.builders.PrimaryKeysBuilder.oneListPrimaryKey
 import static com.br.migrationTool.builders.PrimaryKeysBuilder.oneListPrimaryKeysOneElementBuilder;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 class MigrationDtoBuilderVoTest {
     private static final String TABLE_NAME_TEST = "TEST";
 
+    @Autowired
+    MigrationVo migrationVo;
+
     @BeforeEach
     void setup() {
-        MigrationVo.clearMigrationList();
+        migrationVo.clearMigrationList();
     }
 
     @Test
@@ -28,10 +34,10 @@ class MigrationDtoBuilderVoTest {
         insertTableNames();
 
         // Act
-        MigrationVo.setListMigration(oneMigration().build());
+        migrationVo.setListMigration(oneMigration().build());
 
         // Assert
-        assertTrue(isItemsNotDuplicated(MigrationVo.getAllTableInMigrationList()));
+        assertTrue(isItemsNotDuplicated(migrationVo.getAllTableInMigrationList()));
     }
 
     @Test
@@ -40,24 +46,24 @@ class MigrationDtoBuilderVoTest {
         List<String> primaryKeys = oneListPrimaryKeysBuilder().build();
 
         // Act
-        MigrationVo.setListMigration(oneMigration().build());
-        MigrationVo.setListMigration(oneMigration().build());
+        migrationVo.setListMigration(oneMigration().build());
+        migrationVo.setListMigration(oneMigration().build());
 
         // Assert
-        assertTrue(isItemsNotDuplicated(MigrationVo.getPrimaryKeysMigrationByTableName(TABLE_NAME_TEST)));
+        assertTrue(isItemsNotDuplicated(migrationVo.getPrimaryKeysMigrationByTableName(TABLE_NAME_TEST)));
     }
 
     @Test
     void shouldInsertPrimaKeysInExistingTableIfTableExistingInMigrationList() {
         // Arrange
-        MigrationVo.setListMigration(oneMigration().build());
+        migrationVo.setListMigration(oneMigration().build());
         List<String> primaryKeys = oneListPrimaryKeysOneElementBuilder("55").build();
 
         // Act
-        MigrationVo.setListMigration(oneMigration().withPrimaryKeys(primaryKeys).build());
+        migrationVo.setListMigration(oneMigration().withPrimaryKeys(primaryKeys).build());
 
         // Assert
-        assertTrue(MigrationVo.getMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("55"));
+        assertTrue(migrationVo.getMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("55"));
     }
 
     @Test
@@ -66,32 +72,32 @@ class MigrationDtoBuilderVoTest {
         insertTableNames();
 
         // Assert
-        assertEquals(TABLE_NAME_TEST, MigrationVo.getMigrationByTableName(TABLE_NAME_TEST).getTableName());
+        assertEquals(TABLE_NAME_TEST, migrationVo.getMigrationByTableName(TABLE_NAME_TEST).getTableName());
     }
 
     @Test
     void shouldRemovePrimaryKeysInSpecificTable() {
         // Arrange
-        MigrationVo.setListMigration(oneMigration().build());
+        migrationVo.setListMigration(oneMigration().build());
 
         // Act
-        MigrationVo.removePrimaryKeysListMigrationByTableName(TABLE_NAME_TEST, oneListPrimaryKeysOneElementBuilder("1").build());
+        migrationVo.removePrimaryKeysListMigrationByTableName(TABLE_NAME_TEST, oneListPrimaryKeysOneElementBuilder("1").build());
 
         // Assert
-        assertFalse(MigrationVo.getMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("1"));
+        assertFalse(migrationVo.getMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("1"));
     }
 
     @Test
     void shouldRemoveMigrationIfPrimaryKeysEmpty() {
         // Arrange
         List<String> primaryKeys = oneListPrimaryKeysBuilder().build();
-        MigrationVo.setListMigration(oneMigration().withPrimaryKeys(primaryKeys).build());
+        migrationVo.setListMigration(oneMigration().withPrimaryKeys(primaryKeys).build());
 
         // Act
-        MigrationVo.removePrimaryKeysListMigrationByTableName(TABLE_NAME_TEST, primaryKeys);
+        migrationVo.removePrimaryKeysListMigrationByTableName(TABLE_NAME_TEST, primaryKeys);
 
         // Assert
-        assertEquals(0, MigrationVo.getListMigration().size());
+        assertEquals(0, migrationVo.getListMigration().size());
     }
 
     private boolean isItemsNotDuplicated(List<String> items) {
@@ -102,9 +108,9 @@ class MigrationDtoBuilderVoTest {
     private void insertTableNames() {
         for (int i = 0; i < 9; i++) {
             if (i < 4) {
-                MigrationVo.setListMigration(oneMigration().withTableName(TABLE_NAME_TEST).build());
+                migrationVo.setListMigration(oneMigration().withTableName(TABLE_NAME_TEST).build());
             } else {
-                MigrationVo.setListMigration(oneMigration().withTableName(TABLE_NAME_TEST + 1).build());
+                migrationVo.setListMigration(oneMigration().withTableName(TABLE_NAME_TEST + 1).build());
             }
         }
     }

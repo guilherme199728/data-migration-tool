@@ -22,14 +22,17 @@ public class SqlUtils {
 
             case FieldTypesConstraint.NUMBER:
                 return tableDataDto.getFiledData();
+
             case FieldTypesConstraint.DATE:
                 if (tableDataDto.getFiledData() != null) {
                     return "TIMESTAMP '" + tableDataDto.getFiledData() + "'";
                 }
+
             case FieldTypesConstraint.FLOAT:
                 if (tableDataDto.getFiledData() != null) {
                     return Float.valueOf(tableDataDto.getFiledData()).toString();
                 }
+
             case FieldTypesConstraint.BLOB:
                 if (tableDataDto.getFiledData() == null) {
                     return null;
@@ -87,7 +90,6 @@ public class SqlUtils {
     public static String getStringSqlUpdateData(String tableName, String primaryKeyName, List<TableDataDto> allTableDataDto) {
 
         StringBuilder sqlUpdate = new StringBuilder();
-
         String allTableFields = SqlUtils.arrangeStringUpdateSqlSeparatedByCommaByListTableDataDto(allTableDataDto);
 
         return sqlUpdate

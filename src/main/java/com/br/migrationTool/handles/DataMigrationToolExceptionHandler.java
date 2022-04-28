@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.sql.SQLException;
+
 @ControllerAdvice
 public class DataMigrationToolExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -27,5 +29,13 @@ public class DataMigrationToolExceptionHandler extends ResponseEntityExceptionHa
         responseBody.setMessage(ex.getMessage());
 
         return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = SQLException.class)
+    protected ResponseEntity<BasicHttpResponse> sqlException(RuntimeException ex, WebRequest request) {
+        BasicHttpResponse responseBody = new BasicHttpResponse();
+        responseBody.setMessage(ex.getMessage());
+
+        return new ResponseEntity<>(responseBody, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -12,6 +12,7 @@ import com.br.migrationTool.vos.MigrationVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -34,12 +35,24 @@ public class MigrationUseCase {
     @Autowired
     MessagePropertiesReader messagePropertiesReader;
 
+    @Autowired
+    MigrationVo migrationVo;
+
+    @Value("${search.fields.without.reference}")
+    private boolean searchFieldsWithoutReference;
+
+    @Value("${prefix.table}")
+    private String prefixTable;
+
+    @Value("${prefix.id}")
+    private String prefixId;
+
     private static final Logger logger = LoggerFactory.getLogger(MigrationUseCase.class);
 
     public void process(String tableName, List<String> ids) throws SQLException {
         addInitialTableToMigrationListByRange(tableName, ids);
         createMigrationList();
-        migrationDao.executeMigration();
+        migrationDao.executeMigration(migrationVo.getListMigration());
     }
 
     private void addInitialTableToMigrationListByRange(
@@ -74,16 +87,16 @@ public class MigrationUseCase {
 
         migrationValidation.isNoItemsFound(primaryKeysExistingInProd);
         migrationDto.setPrimaryKeys(primaryKeysExistingInProd);
-        MigrationVo.setListMigration(migrationDto);
-        MigrationVo.removePrimaryKeysListMigrationByTableName(migrationDto.getTableName(), primaryKeysExistingInHomolog);
-        migrationValidation.isAllMigratedItems(MigrationVo.getListMigration());
+        migrationVo.setListMigration(migrationDto);
+        migrationVo.removePrimaryKeysListMigrationByTableName(migrationDto.getTableName(), primaryKeysExistingInHomolog);
+        migrationValidation.isAllMigratedItems(migrationVo.getListMigration());
     }
 
     private void createMigrationList() throws SQLException {
 
-        while (MigrationVo.isAllReferencesSearched()) {
+        while (migrationVo.isAllReferencesSearched()) {
 
-            List<MigrationDto> migrationsDto = MigrationVo.cloneMigration();
+            List<MigrationDto> migrationsDto = migrationVo.cloneMigration();
 
             for (MigrationDto migrationDto : migrationsDto) {
 
@@ -92,13 +105,15 @@ public class MigrationUseCase {
                         migrationDto.getTableName(), true
                     );
 
-                    searchFieldsWithoutReference(migrationDto, parentTableDtos);
+                    if (searchFieldsWithoutReference) {
+                        searchFieldsWithoutReference(migrationDto, parentTableDtos);
+                    }
 
                     if (parentTableDtos.size() > 0) {
                         addParentsToMigrationList(parentTableDtos, migrationDto);
-                        MigrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
+                        migrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
                     } else {
-                        MigrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
+                        migrationVo.setSearchedReferenceByTableName(migrationDto.getTableName(), true);
                     }
                 }
             }
@@ -119,8 +134,8 @@ public class MigrationUseCase {
 
             String fieldTable = set.getKey();
 
-            if (fieldTable.startsWith("ID")) {
-                String tableNameByField = fieldTable.replace("ID", "T_");
+            if (fieldTable.startsWith(prefixId)) {
+                String tableNameByField = fieldTable.replace(prefixId, prefixTable);
 
                 int tableShared = parentTableDtos.stream()
                     .filter(parentTableDto -> parentTableDto.getTableName().equals(tableNameByField))
@@ -174,7 +189,7 @@ public class MigrationUseCase {
                     .isSearchedReference(false)
                     .build();
 
-                MigrationVo.setListMigration(newMigrationDto);
+                migrationVo.setListMigration(newMigrationDto);
             }
         }
     }
