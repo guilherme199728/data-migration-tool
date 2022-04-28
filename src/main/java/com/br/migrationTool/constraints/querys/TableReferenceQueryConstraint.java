@@ -56,7 +56,7 @@ public final class TableReferenceQueryConstraint {
         """;
 
     public static final String GET_ALL_NAMES_AND_TYPE_COLUMNS_TABLE = """
-            SELECT COLUMN_NAME, DATA_TYPE
+            SELECT COLUMN_NAME AS FIELDNAME, DATA_TYPE AS FIELDTYPE
             FROM USER_TAB_COLUMNS WHERE
             TABLE_NAME = ?
         """;

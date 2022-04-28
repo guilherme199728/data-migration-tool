@@ -3,10 +3,7 @@ package com.br.migrationTool.useCases;
 import com.br.migrationTool.configs.MessagePropertiesReader;
 import com.br.migrationTool.datas.daos.MigrationDao;
 import com.br.migrationTool.datas.daos.TableReferencesDao;
-import com.br.migrationTool.dtos.migration.MigrationDto;
-import com.br.migrationTool.dtos.migration.ParentTableDto;
-import com.br.migrationTool.dtos.migration.BasicTableStructureDto;
-import com.br.migrationTool.dtos.migration.TableDataDto;
+import com.br.migrationTool.dtos.migration.*;
 import com.br.migrationTool.validations.MigrationValidation;
 import com.br.migrationTool.vos.MigrationVo;
 import org.slf4j.Logger;
@@ -117,18 +114,21 @@ public class MigrationUseCase {
         MigrationDto migrationDto, List<ParentTableDto> parentTableDtos
     ) throws SQLException {
 
-        HashMap<String, String> allNamesAndTypeColumns = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
-            migrationDto.getTableName(), false
-        );
+        List<NamesTypesFieldsTableDto> namesTypesFieldsTableDtos =
+            tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
+                migrationDto.getTableName(), false
+            );
 
-        allNamesAndTypeColumns.remove(migrationDto.getBasicTableStructureDto().getPrimaryKeyName());
+        namesTypesFieldsTableDtos = namesTypesFieldsTableDtos.stream().filter(
+            namesTypesFieldsTableDto ->  !(namesTypesFieldsTableDto.getFieldName().equals(
+                migrationDto.getBasicTableStructureDto().getPrimaryKeyName())
+            )
+        ).toList();
 
-        for (Map.Entry<String, String> set : allNamesAndTypeColumns.entrySet()) {
+        for (NamesTypesFieldsTableDto namesTypesFieldsTableDto : namesTypesFieldsTableDtos) {
 
-            String fieldTable = set.getKey();
-
-            if (fieldTable.startsWith(prefixId)) {
-                String tableNameByField = fieldTable.replace(prefixId, prefixTable);
+            if (namesTypesFieldsTableDto.getFieldName().startsWith(prefixId)) {
+                String tableNameByField = namesTypesFieldsTableDto.getFieldName().replace(prefixId, prefixTable);
 
                 int tableShared = parentTableDtos.stream()
                     .filter(parentTableDto -> parentTableDto.getTableName().equals(tableNameByField))
@@ -138,15 +138,16 @@ public class MigrationUseCase {
                 if (tableShared == 0) {
 
                     try {
-                        HashMap<String, String> allNamesAndTypeColumnsWithoutReference = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
-                            tableNameByField, false
-                        );
+                        List<NamesTypesFieldsTableDto> namesTypesFieldsTableDtosWithoutReference =
+                            tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
+                                tableNameByField, false
+                            );
 
-                        if (allNamesAndTypeColumnsWithoutReference.containsKey(fieldTable)) {
+                        if (isFieldWithoutReference(namesTypesFieldsTableDto, namesTypesFieldsTableDtosWithoutReference)) {
                             ParentTableDto parentTableDto = new ParentTableDto();
                             parentTableDto.setTableName(tableNameByField);
-                            parentTableDto.setPrimaryKeyName(fieldTable);
-                            parentTableDto.setForeingKeyName(fieldTable);
+                            parentTableDto.setPrimaryKeyName(namesTypesFieldsTableDto.getFieldName());
+                            parentTableDto.setForeingKeyName(namesTypesFieldsTableDto.getFieldName());
                             parentTableDtos.add(parentTableDto);
                         }
                     } catch (SQLException e) {
@@ -158,6 +159,14 @@ public class MigrationUseCase {
                 }
             }
         }
+    }
+
+    private boolean isFieldWithoutReference(NamesTypesFieldsTableDto namesTypesFieldsTableDto, List<NamesTypesFieldsTableDto> namesTypesFieldsTableDtosWithoutReference) {
+        return namesTypesFieldsTableDtosWithoutReference
+            .stream()
+            .map(NamesTypesFieldsTableDto::getFieldName)
+            .toList()
+            .contains(namesTypesFieldsTableDto.getFieldName());
     }
 
     private void addParentsToMigrationList(

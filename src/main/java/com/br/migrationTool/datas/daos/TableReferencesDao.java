@@ -2,10 +2,7 @@ package com.br.migrationTool.datas.daos;
 
 import com.br.migrationTool.constraints.querys.TableReferenceQueryConstraint;
 import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
-import com.br.migrationTool.dtos.migration.ChildrenTableDto;
-import com.br.migrationTool.dtos.migration.MigrationDto;
-import com.br.migrationTool.dtos.migration.ParentTableDto;
-import com.br.migrationTool.dtos.migration.BasicTableStructureDto;
+import com.br.migrationTool.dtos.migration.*;
 import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.StringUtils;
 
@@ -57,7 +54,7 @@ public class TableReferencesDao {
         return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
-    public HashMap<String, String> getAllNamesAndTypeColumnsTableFromTableName(
+    public List<NamesTypesFieldsTableDto> getAllNamesAndTypeColumnsTableFromTableName(
         String tableName, boolean isProd
     ) throws SQLException {
 
@@ -66,15 +63,12 @@ public class TableReferencesDao {
         PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
         ps.setString(1, tableName);
         ResultSet rs = ps.executeQuery();
-        ResultSetMetaData md = rs.getMetaData();
 
-        HashMap<String, String> allNamesColumnsTable = new HashMap<>();
+        QueryRunner runner = new QueryRunner();
+        ResultSetHandler<List<NamesTypesFieldsTableDto>> rsh = new BeanListHandler<>(NamesTypesFieldsTableDto.class);
+        Object[] params = new Object[]{tableName};
 
-        while (rs.next()) {
-            allNamesColumnsTable.put(rs.getString(md.getColumnName(1)), rs.getString(md.getColumnName(2)));
-        }
-
-        return allNamesColumnsTable;
+        return runner.query(connectionOracleJDBC.getConnection(isProd), sql, rsh, params);
     }
 
     public List<ChildrenTableDto> getChildrenTablesFromConstraint(

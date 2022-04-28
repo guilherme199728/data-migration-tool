@@ -3,6 +3,7 @@ package com.br.migrationTool.datas.daos;
 import com.br.migrationTool.constraints.querys.MigrationQueryConstraint;
 import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
 import com.br.migrationTool.dtos.migration.MigrationDto;
+import com.br.migrationTool.dtos.migration.NamesTypesFieldsTableDto;
 import com.br.migrationTool.dtos.migration.TableDataDto;
 import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.SqlUtils;
@@ -89,16 +90,17 @@ public class MigrationDao {
             ps.setString(1, primaryKey);
             rs = ps.executeQuery();
 
-            HashMap<String, String> allColumnsTable = tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
-                tableName, false
-            );
+            List<NamesTypesFieldsTableDto> namesTypesFieldsTableDtos =
+                tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
+                    tableName, false
+                );
 
             while (rs.next()) {
-                for (Map.Entry<String, String> column : allColumnsTable.entrySet()) {
+                for (NamesTypesFieldsTableDto namesTypesFieldsTableDto : namesTypesFieldsTableDtos) {
                     TableDataDto tableDataDto = TableDataDto.builder()
-                        .fieldName(column.getKey())
-                        .filedData(correctFieldData(column, rs))
-                        .filedType(column.getValue())
+                        .fieldName(namesTypesFieldsTableDto.getFieldName())
+                        .filedData(correctFieldData(namesTypesFieldsTableDto, rs))
+                        .filedType(namesTypesFieldsTableDto.getFieldType())
                         .build();
 
                     allTableDataDto.add(tableDataDto);
@@ -111,9 +113,11 @@ public class MigrationDao {
         return allTableDataDto;
     }
 
-    private String correctFieldData(Map.Entry<String, String> column, ResultSet rs) throws SQLException {
-        return column.getValue().equals("BLOB") ?
+    private String correctFieldData(
+        NamesTypesFieldsTableDto namesTypesFieldsTableDto, ResultSet rs
+    ) throws SQLException {
+        return namesTypesFieldsTableDto.getFieldType().equals("BLOB") ?
             null :
-            rs.getString(column.getKey());
+            rs.getString(namesTypesFieldsTableDto.getFieldName());
     }
 }
