@@ -103,48 +103,6 @@ public class TableReferencesDao {
         return primaryKeyNames;
     }
 
-    public List<String> getPrimaryKeysByParentTable(
-        MigrationDto migrationDto, ParentTableDto parentTableDto, boolean isProd
-    ) throws SQLException {
-
-        int offSet = 950;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        List<String> allPrimaryKeys = new ArrayList<>();
-
-        try {
-            String sql = TableReferenceQueryConstraint.GET_PRIMARY_KEYS_BY_PARENT_TABLE +
-                getPrimaryKeysConcatenatedByOffSet(
-                    parentTableDto.getForeingKeyName(),
-                    migrationDto.getPrimaryKeys(),
-                    offSet
-                );
-
-            String sqlBuilt = String.format(
-                sql,
-                parentTableDto.getForeingKeyName(),
-                ownerUtils.getOwner(isProd),
-                migrationDto.getTableName(),
-                ownerUtils.getOwner(isProd),
-                parentTableDto.getTableName(),
-                parentTableDto.getForeingKeyName(),
-                parentTableDto.getPrimaryKeyName(),
-                migrationDto.getBasicTableStructureDto().getPrimaryKeyName()
-            );
-
-            ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sqlBuilt);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                allPrimaryKeys.add(rs.getString(parentTableDto.getForeingKeyName()));
-            }
-        } finally {
-            connectionOracleJDBC.close(ps, rs);
-        }
-
-        return allPrimaryKeys;
-    }
-
     public List<String> getPrimaryKeys(
         String tableName, String primaryKeyName, String whereColum, List<String> primaryKeys, boolean isProd
     ) throws SQLException {
@@ -175,44 +133,5 @@ public class TableReferencesDao {
         }
 
         return allNamesColumnsTable;
-    }
-
-    private String getPrimaryKeysConcatenatedByOffSet(String primaryKeyName, List<String> primaryKeys, int offSet) {
-
-        List<String> listPrimaryKeysByOffSet = getListPrimaryKeysSeparatedByBarByOffset(offSet, primaryKeys);
-
-        int index = 1;
-        StringBuilder offSetQueryConcat = new StringBuilder();
-        for (String primaryKeyByOffSet : listPrimaryKeysByOffSet) {
-            if (index == 1) {
-                offSetQueryConcat.append("(").append(primaryKeyByOffSet).append(")");
-            } else {
-                offSetQueryConcat.append(" OR ").append(primaryKeyName).append(" IN (").append(primaryKeyByOffSet).append(")");
-            }
-
-            index++;
-        }
-
-        return offSetQueryConcat.toString();
-    }
-
-    private static List<String> getListPrimaryKeysSeparatedByBarByOffset(int offSet, List<String> primaryKeys) {
-        StringBuilder primaryKeysConcat = new StringBuilder();
-        int nextOffSet = offSet;
-        int index = 1;
-
-        for (String primaryKey : primaryKeys) {
-            primaryKeysConcat.append("'").append(primaryKey).append("'");
-            if (nextOffSet == index) {
-                primaryKeysConcat.append("/");
-                nextOffSet = nextOffSet + offSet;
-            } else if (index != primaryKeys.size()) {
-                primaryKeysConcat.append(",");
-            }
-
-            index++;
-        }
-
-        return List.of(primaryKeysConcat.toString().split("/"));
     }
 }

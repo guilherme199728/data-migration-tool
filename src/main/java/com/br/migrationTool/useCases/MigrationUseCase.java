@@ -1,6 +1,7 @@
 package com.br.migrationTool.useCases;
 
 import com.br.migrationTool.configs.MessagePropertiesReader;
+import com.br.migrationTool.datas.daos.DataTableDao;
 import com.br.migrationTool.datas.daos.MigrationDao;
 import com.br.migrationTool.datas.daos.TableReferencesDao;
 import com.br.migrationTool.dtos.migration.*;
@@ -24,6 +25,8 @@ public class MigrationUseCase {
     TableReferencesDao tableReferencesDao;
     @Autowired
     MigrationDao migrationDao;
+    @Autowired
+    DataTableDao dataTableDao;
     @Autowired
     MigrationValidation migrationValidation;
     @Autowired
@@ -175,7 +178,7 @@ public class MigrationUseCase {
 
         for (ParentTableDto parentTableDto : parentTableDtos) {
 
-            List<String> primaryKeysProd = tableReferencesDao.getPrimaryKeysByParentTable(
+            List<String> primaryKeysProd = dataTableDao.getPrimaryKeysByParentTable(
                 migrationDto, parentTableDto, true
             );
 

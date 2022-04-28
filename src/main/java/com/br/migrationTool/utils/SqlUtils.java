@@ -12,33 +12,36 @@ public class SqlUtils {
     public static String transformDataToSqlField(TableDataDto tableDataDto) {
 
         switch (tableDataDto.getFiledType()) {
-            case FieldTypesConstraint.VARCHAR_2:
-            case FieldTypesConstraint.CHAR:
+            case FieldTypesConstraint.VARCHAR_2, FieldTypesConstraint.CHAR -> {
                 if (tableDataDto.getFiledData() == null) {
                     return "''";
                 }
-
                 return "'" + tableDataDto.getFiledData() + "'";
-
-            case FieldTypesConstraint.NUMBER:
-                return tableDataDto.getFiledData();
-
-            case FieldTypesConstraint.DATE:
-                if (tableDataDto.getFiledData() != null) {
-                    return "TIMESTAMP '" + tableDataDto.getFiledData() + "'";
-                }
-
-            case FieldTypesConstraint.FLOAT:
-                if (tableDataDto.getFiledData() != null) {
-                    return Float.valueOf(tableDataDto.getFiledData()).toString();
-                }
-
-            case FieldTypesConstraint.BLOB:
+            }
+            case FieldTypesConstraint.NUMBER -> {
                 if (tableDataDto.getFiledData() == null) {
                     return null;
                 }
-
+                return tableDataDto.getFiledData();
+            }
+            case FieldTypesConstraint.DATE -> {
+                if (tableDataDto.getFiledData() == null) {
+                    return null;
+                }
+                return "TIMESTAMP '" + tableDataDto.getFiledData() + "'";
+            }
+            case FieldTypesConstraint.FLOAT -> {
+                if (tableDataDto.getFiledData() != null) {
+                    return null;
+                }
+                return Float.valueOf(tableDataDto.getFiledData()).toString();
+            }
+            case FieldTypesConstraint.BLOB -> {
+                if (tableDataDto.getFiledData() == null) {
+                    return null;
+                }
                 return "'" + tableDataDto.getFiledData() + "'";
+            }
         }
 
         return null;
@@ -114,6 +117,47 @@ public class SqlUtils {
         }
 
         return null;
+    }
+
+    public static String getPrimaryKeysConcatenatedByOffSet(String primaryKeyName, List<String> primaryKeys) {
+
+        List<String> listPrimaryKeysByOffSet = getListPrimaryKeysSeparatedByBarByOffset(primaryKeys);
+
+        int index = 1;
+        StringBuilder offSetQueryConcat = new StringBuilder();
+        for (String primaryKeyByOffSet : listPrimaryKeysByOffSet) {
+            if (index == 1) {
+                offSetQueryConcat.append("(").append(primaryKeyByOffSet).append(")");
+            } else {
+                offSetQueryConcat.append(" OR ").append(primaryKeyName).append(" IN (").append(primaryKeyByOffSet).append(")");
+            }
+
+            index++;
+        }
+
+        return offSetQueryConcat.toString();
+    }
+
+    private static List<String> getListPrimaryKeysSeparatedByBarByOffset(List<String> primaryKeys) {
+
+        int offSet = 950;
+        StringBuilder primaryKeysConcat = new StringBuilder();
+        int nextOffSet = offSet;
+        int index = 1;
+
+        for (String primaryKey : primaryKeys) {
+            primaryKeysConcat.append("'").append(primaryKey).append("'");
+            if (nextOffSet == index) {
+                primaryKeysConcat.append("/");
+                nextOffSet = nextOffSet + offSet;
+            } else if (index != primaryKeys.size()) {
+                primaryKeysConcat.append(",");
+            }
+
+            index++;
+        }
+
+        return List.of(primaryKeysConcat.toString().split("/"));
     }
 
 }

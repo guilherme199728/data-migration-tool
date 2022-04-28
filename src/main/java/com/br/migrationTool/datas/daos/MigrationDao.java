@@ -24,7 +24,7 @@ import java.util.*;
 public class MigrationDao {
 
     @Autowired
-    TableReferencesDao tableReferencesDao;
+    DataTableDao dataTableDao;
     @Autowired
     ConnectionOracleJDBC connectionOracleJDBC;
     @Autowired
@@ -41,7 +41,7 @@ public class MigrationDao {
             for (MigrationDto migrationDto : allMigration) {
                 for (String primaryKey : migrationDto.getPrimaryKeys()) {
 
-                    List<TableDataDto> allTableDataDto = getDataTableByPrimaryKey(
+                    List<TableDataDto> allTableDataDto = dataTableDao.getDataTableByPrimaryKey(
                         migrationDto.getTableName(),
                         migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
                     );
@@ -68,56 +68,5 @@ public class MigrationDao {
         } finally {
             connectionOracleJDBC.close(ps, null);
         }
-    }
-
-    public List<TableDataDto> getDataTableByPrimaryKey(
-        String tableName, String primaryKeyName, String primaryKey
-    ) throws SQLException {
-
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        List<TableDataDto> allTableDataDto = new ArrayList<>();
-
-        try {
-            String sql = String.format(
-                MigrationQueryConstraint.GET_DATA_TABLE_BY_PRIMARY_KEY,
-                ownerUtils.getOwner(true),
-                tableName,
-                primaryKeyName
-            );
-
-            ps = connectionOracleJDBC.getConnection(true).prepareStatement(sql);
-            ps.setString(1, primaryKey);
-            rs = ps.executeQuery();
-
-            List<NamesTypesFieldsTableDto> namesTypesFieldsTableDtos =
-                tableReferencesDao.getAllNamesAndTypeColumnsTableFromTableName(
-                    tableName, false
-                );
-
-            while (rs.next()) {
-                for (NamesTypesFieldsTableDto namesTypesFieldsTableDto : namesTypesFieldsTableDtos) {
-                    TableDataDto tableDataDto = TableDataDto.builder()
-                        .fieldName(namesTypesFieldsTableDto.getFieldName())
-                        .filedData(correctFieldData(namesTypesFieldsTableDto, rs))
-                        .filedType(namesTypesFieldsTableDto.getFieldType())
-                        .build();
-
-                    allTableDataDto.add(tableDataDto);
-                }
-            }
-        } finally {
-            connectionOracleJDBC.close(ps, rs);
-        }
-
-        return allTableDataDto;
-    }
-
-    private String correctFieldData(
-        NamesTypesFieldsTableDto namesTypesFieldsTableDto, ResultSet rs
-    ) throws SQLException {
-        return namesTypesFieldsTableDto.getFieldType().equals("BLOB") ?
-            null :
-            rs.getString(namesTypesFieldsTableDto.getFieldName());
     }
 }
