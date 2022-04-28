@@ -74,6 +74,7 @@ public class DataTableDao {
     private String correctFieldData(
         NamesTypesFieldsTableDto namesTypesFieldsTableDto, ResultSet rs
     ) throws SQLException {
+
         return namesTypesFieldsTableDto.getFieldType().equals("BLOB") ?
             null :
             rs.getString(namesTypesFieldsTableDto.getFieldName());
