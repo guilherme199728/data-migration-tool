@@ -6,9 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
@@ -78,9 +77,26 @@ public class MigrationVo {
 
     public void organizeListMigration() {
 
-        listMigrationVo.stream().map(MigrationDto::getTableName).toList();
+        //Collections.reverse(listMigrationVo);
+        List<MigrationDto> newMigrationDtos = new ArrayList<>();
+        Map<String, List<MigrationDto>> mapMigrationDtos = listMigrationVo
+            .stream()
+            .collect(Collectors.groupingBy(MigrationDto::getTableName));
 
-        Collections.reverse(listMigrationVo);
+        mapMigrationDtos.forEach((tableName, migrationDtos) -> {
+            newMigrationDtos.add(
+                MigrationDto.builder()
+                    .tableName(tableName)
+                    .isSearchedReference(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).isSearchedReference())
+                    .basicTableStructureDto(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).getBasicTableStructureDto())
+                    .primaryKeys(migrationDtos.stream().map(MigrationDto::getPrimaryKeys).flatMap(List::stream).toList())
+                    .order(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).getOrder())
+                    .build()
+                );
+            }
+        );
+
+        listMigrationVo = newMigrationDtos.stream().sorted(Comparator.comparing(MigrationDto::getOrder).reversed()).toList();
     }
 
     public void clearMigrationList() {

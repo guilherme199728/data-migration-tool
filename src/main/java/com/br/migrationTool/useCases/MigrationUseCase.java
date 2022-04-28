@@ -191,6 +191,7 @@ public class MigrationUseCase {
                     .basicTableStructureDto(newBasicTableStructureDto)
                     .primaryKeys(primaryKeysProd)
                     .isSearchedReference(false)
+                    .order(migrationVo.getListMigration().size())
                     .build();
 
                 migrationVo.setListMigration(newMigrationDto);
