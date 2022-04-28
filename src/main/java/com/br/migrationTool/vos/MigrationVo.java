@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ public class MigrationVo {
     }
 
     public List<String> getPrimaryKeysMigrationByTableName(String tableName) {
-        return getMigrationByTableName(tableName).getPrimaryKeys();
+        return getFirstMigrationByTableName(tableName).getPrimaryKeys();
     }
 
     public List<String> getAllTableInMigrationList() {
@@ -30,12 +31,16 @@ public class MigrationVo {
             .collect(Collectors.toList());
     }
 
-    public MigrationDto getMigrationByTableName(String tableName) {
+    public List<MigrationDto> getAllMigrationByTableName(String tableName) {
+        return listMigrationVo.stream().filter(migrationVo -> migrationVo.getTableName().equals(tableName)).toList();
+    }
+
+    public MigrationDto getFirstMigrationByTableName(String tableName) {
         return listMigrationVo.stream().filter(migrationVo -> migrationVo.getTableName().equals(tableName)).findAny().orElse(null);
     }
 
     public void removePrimaryKeysListMigrationByTableName(String tableName, List<String> primaryKeys) {
-        MigrationDto migrationDto = getMigrationByTableName(tableName);
+        MigrationDto migrationDto = getFirstMigrationByTableName(tableName);
 
         primaryKeys.forEach(primaryKeyForRemove -> migrationDto.getPrimaryKeys().remove(primaryKeyForRemove));
 
@@ -45,23 +50,19 @@ public class MigrationVo {
 
     }
 
-    public void setListMigration(MigrationDto migrationDto) {
-        MigrationDto migrationDtoExisting = getMigrationByTableName(migrationDto.getTableName());
-        if (migrationDtoExisting != null) {
-            for (String primaryKey : migrationDto.getPrimaryKeys()) {
-                if (!migrationDtoExisting.getPrimaryKeys().contains(primaryKey)) {
-                    migrationDtoExisting.getPrimaryKeys().add(primaryKey);
-                    migrationDtoExisting.setSearchedReference(migrationDto.isSearchedReference());
-                }
-            }
-        } else {
-            listMigrationVo.add(
-                MigrationDto.builder()
-                    .tableName(migrationDto.getTableName())
-                    .primaryKeys(migrationDto.getPrimaryKeys().stream().distinct().collect(Collectors.toList()))
-                    .basicTableStructureDto(migrationDto.getBasicTableStructureDto())
-                    .build()
-            );
+    public void setListMigration(MigrationDto newMigrationDto) {
+
+        List<MigrationDto> migrationDtosExisting = getAllMigrationByTableName(newMigrationDto.getTableName());
+        List<String> allPrimaryKeysExisting = migrationDtosExisting.stream().map(MigrationDto::getPrimaryKeys).flatMap(List::stream).toList();
+        List<String> newPrimaryKeys = newMigrationDto.getPrimaryKeys();
+        List<String> primaryKeysForAdded = newPrimaryKeys.stream().filter(newPrimaryKey -> !allPrimaryKeysExisting.contains(newPrimaryKey)).toList();
+
+        if (migrationDtosExisting.size() == 0) {
+            newMigrationDto.setPrimaryKeys(newMigrationDto.getPrimaryKeys().stream().distinct().collect(Collectors.toList()));
+            listMigrationVo.add(newMigrationDto);
+        } else if (primaryKeysForAdded.size() != 0) {
+            newMigrationDto.setPrimaryKeys(primaryKeysForAdded.stream().distinct().collect(Collectors.toList()));
+            listMigrationVo.add(newMigrationDto);
         }
     }
 
@@ -70,7 +71,16 @@ public class MigrationVo {
     }
 
     public void setSearchedReferenceByTableName(String tableName, boolean isSearchedReference) {
-        getMigrationByTableName(tableName).setSearchedReference(isSearchedReference);
+        getAllMigrationByTableName(tableName).forEach(
+            migrationDto -> migrationDto.setSearchedReference(isSearchedReference)
+        );
+    }
+
+    public void organizeListMigration() {
+
+        listMigrationVo.stream().map(MigrationDto::getTableName).toList();
+
+        Collections.reverse(listMigrationVo);
     }
 
     public void clearMigrationList() {

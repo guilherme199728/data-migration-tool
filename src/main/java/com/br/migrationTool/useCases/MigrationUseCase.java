@@ -42,12 +42,13 @@ public class MigrationUseCase {
     private static final Logger logger = LoggerFactory.getLogger(MigrationUseCase.class);
 
     public void process(String tableName, List<String> ids) throws SQLException {
-        addInitialTableToMigrationListByRange(tableName, ids);
+        addTableToMigrationList(tableName, ids);
+        migrationValidation.isAllMigratedItems(migrationVo.getListMigration());
         createMigrationList();
-        migrationDao.executeMigration(migrationVo.getListMigration());
+        migrationDao.executeMigration(migrationVo);
     }
 
-    private void addInitialTableToMigrationListByRange(
+    private void addTableToMigrationList(
         String initialTableName, List<String> primaryKeyList
     ) throws SQLException {
 
@@ -81,7 +82,6 @@ public class MigrationUseCase {
         migrationDto.setPrimaryKeys(primaryKeysExistingInProd);
         migrationVo.setListMigration(migrationDto);
         migrationVo.removePrimaryKeysListMigrationByTableName(migrationDto.getTableName(), primaryKeysExistingInHomolog);
-        migrationValidation.isAllMigratedItems(migrationVo.getListMigration());
     }
 
     private void createMigrationList() throws SQLException {

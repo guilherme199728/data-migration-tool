@@ -63,7 +63,7 @@ class MigrationDtoBuilderVoTest {
         migrationVo.setListMigration(oneMigration().withPrimaryKeys(primaryKeys).build());
 
         // Assert
-        assertTrue(migrationVo.getMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("55"));
+        assertTrue(migrationVo.getFirstMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("55"));
     }
 
     @Test
@@ -72,7 +72,7 @@ class MigrationDtoBuilderVoTest {
         insertTableNames();
 
         // Assert
-        assertEquals(TABLE_NAME_TEST, migrationVo.getMigrationByTableName(TABLE_NAME_TEST).getTableName());
+        assertEquals(TABLE_NAME_TEST, migrationVo.getFirstMigrationByTableName(TABLE_NAME_TEST).getTableName());
     }
 
     @Test
@@ -84,7 +84,7 @@ class MigrationDtoBuilderVoTest {
         migrationVo.removePrimaryKeysListMigrationByTableName(TABLE_NAME_TEST, oneListPrimaryKeysOneElementBuilder("1").build());
 
         // Assert
-        assertFalse(migrationVo.getMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("1"));
+        assertFalse(migrationVo.getFirstMigrationByTableName(TABLE_NAME_TEST).getPrimaryKeys().contains("1"));
     }
 
     @Test
