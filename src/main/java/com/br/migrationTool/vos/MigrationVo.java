@@ -76,11 +76,20 @@ public class MigrationVo {
 
     public void organizeListMigration() {
 
+        // separa as tabelas repetidas agrupando-as
         List<MigrationDto> newMigrationDtos = new ArrayList<>();
         Map<String, List<MigrationDto>> mapMigrationDtos = listMigrationVo
             .stream()
             .collect(Collectors.groupingBy(MigrationDto::getTableName));
 
+        // pega as tabelas agrupadas e agrupa as primaryKeys também, tranformando em unico objeto de migração
+        groupTablesAndPrimaryKeysKeepingOrder(newMigrationDtos, mapMigrationDtos);
+
+        // ordena e inverte a lista de acordo com a dependencia para ser inserido na order correta no banco
+        listMigrationVo = newMigrationDtos.stream().sorted(Comparator.comparing(MigrationDto::getLevel).reversed()).toList();
+    }
+
+    private void groupTablesAndPrimaryKeysKeepingOrder(List<MigrationDto> newMigrationDtos, Map<String, List<MigrationDto>> mapMigrationDtos) {
         mapMigrationDtos.forEach((tableName, migrationDtos) -> newMigrationDtos.add(
             MigrationDto.builder()
                 .tableName(tableName)
@@ -95,8 +104,6 @@ public class MigrationVo {
                 .build()
             )
         );
-
-        listMigrationVo = newMigrationDtos.stream().sorted(Comparator.comparing(MigrationDto::getLevel).reversed()).toList();
     }
 
     public void clearMigrationList() {
