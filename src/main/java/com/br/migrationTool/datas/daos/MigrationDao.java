@@ -26,6 +26,7 @@ public class MigrationDao {
 
     public void executeMigration(List<MigrationDto> migrationDtos) throws SQLException {
 
+        // corrige a ordem da lista de migração para que inserção seja feita corretamente
         Collections.reverse(migrationDtos);
         Connection conn;
         PreparedStatement ps = null;
