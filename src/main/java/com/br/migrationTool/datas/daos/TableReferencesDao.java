@@ -60,10 +60,6 @@ public class TableReferencesDao {
 
         String sql = TableReferenceQueryConstraint.GET_ALL_NAMES_AND_TYPE_COLUMNS_TABLE;
 
-        PreparedStatement ps = connectionOracleJDBC.getConnection(isProd).prepareStatement(sql);
-        ps.setString(1, tableName);
-        ResultSet rs = ps.executeQuery();
-
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<NamesTypesFieldsTableDto>> rsh = new BeanListHandler<>(NamesTypesFieldsTableDto.class);
         Object[] params = new Object[]{tableName};
