@@ -16,7 +16,7 @@ public class SqlUtils {
                 if (tableDataDto.getFiledData() == null) {
                     return "''";
                 }
-                return "'" + tableDataDto.getFiledData() + "'";
+                return "'" + tableDataDto.getFiledData().replaceAll("'", " ") + "'";
             }
             case FieldTypesConstraint.NUMBER -> {
                 if (tableDataDto.getFiledData() == null) {

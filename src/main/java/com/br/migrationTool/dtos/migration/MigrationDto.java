@@ -15,7 +15,7 @@ public class MigrationDto {
     private List<String> primaryKeys;
     private BasicTableStructureDto basicTableStructureDto;
     private boolean isSearchedReference;
-    private int order;
+    private int level;
 
     @Override
     public boolean equals(Object o) {

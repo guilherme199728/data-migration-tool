@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,37 +34,35 @@ public class MigrationDao {
         List<MigrationDto> migrationDtos = migrationVo.getListMigration();
         Connection conn = connectionOracleJDBC.getConnection(false);
         conn.setAutoCommit(false);
-        PreparedStatement ps = null;
 
-        try {
+        try (Statement statement = conn.createStatement()) {
             for (MigrationDto migrationDto : migrationDtos) {
                 for (String primaryKey : migrationDto.getPrimaryKeys()) {
-                    try {
-                        List<TableDataDto> tableDataDtos = dataTableDao.getDataTableByPrimaryKey(
-                            migrationDto.getTableName(),
-                            migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
-                        );
+                    List<TableDataDto> tableDataDtos = dataTableDao.getDataTableByPrimaryKey(
+                        migrationDto.getTableName(),
+                        migrationDto.getBasicTableStructureDto().getPrimaryKeyName(), primaryKey
+                    );
 
-                        ps = executeUpdate(conn, migrationDto, tableDataDtos);
+                    int linesUpdated = executeUpdate(statement, migrationDto, tableDataDtos);
 
-                        if (isUpdateNotExecuted(ps)) {
-                            executeInsert(ps, conn, migrationDto, tableDataDtos);
-                        }
-                    } finally {
-                        connectionOracleJDBC.close(ps, null);
+                    if (linesUpdated == 0) {
+                        executeInsert(statement, migrationDto, tableDataDtos);
                     }
                 }
-
-                conn.commit();
             }
-        } finally {
+
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        }finally {
             conn.setAutoCommit(true);
             migrationVo.clearMigrationList();
         }
     }
 
-    private PreparedStatement executeUpdate(
-        Connection conn, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
+    private int executeUpdate(
+        Statement statement, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
     ) throws SQLException {
 
         String sqlUpdateData = SqlUtils.getStringSqlUpdateData(
@@ -73,22 +72,16 @@ public class MigrationDao {
         );
         logger.info(sqlUpdateData);
 
-        return conn.prepareStatement(sqlUpdateData);
+        return statement.executeUpdate(sqlUpdateData);
     }
 
     private void executeInsert(
-        PreparedStatement ps, Connection conn, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
+        Statement statement, MigrationDto migrationDto, List<TableDataDto> tableDataDtos
     ) throws SQLException {
 
         String sqlInsertData = SqlUtils.getStringSqlInsertData(migrationDto.getTableName(), tableDataDtos);
         logger.info(sqlInsertData);
 
-        ps = conn.prepareStatement(sqlInsertData);
-        ps.executeQuery();
+        statement.execute(sqlInsertData);
     }
-
-    private boolean isUpdateNotExecuted(PreparedStatement ps) throws SQLException {
-        return !ps.executeQuery().next();
-    }
-
 }

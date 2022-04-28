@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
@@ -83,20 +82,18 @@ public class MigrationVo {
             .stream()
             .collect(Collectors.groupingBy(MigrationDto::getTableName));
 
-        mapMigrationDtos.forEach((tableName, migrationDtos) -> {
-            newMigrationDtos.add(
-                MigrationDto.builder()
-                    .tableName(tableName)
-                    .isSearchedReference(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).isSearchedReference())
-                    .basicTableStructureDto(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).getBasicTableStructureDto())
-                    .primaryKeys(migrationDtos.stream().map(MigrationDto::getPrimaryKeys).flatMap(List::stream).toList())
-                    .order(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).getOrder())
-                    .build()
-                );
-            }
+        mapMigrationDtos.forEach((tableName, migrationDtos) -> newMigrationDtos.add(
+            MigrationDto.builder()
+                .tableName(tableName)
+                .isSearchedReference(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).isSearchedReference())
+                .basicTableStructureDto(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).getBasicTableStructureDto())
+                .primaryKeys(migrationDtos.stream().map(MigrationDto::getPrimaryKeys).flatMap(List::stream).toList())
+                .level(migrationDtos.stream().mapToInt(MigrationDto::getLevel).max().orElse(0))
+                .build()
+            )
         );
 
-        listMigrationVo = newMigrationDtos.stream().sorted(Comparator.comparing(MigrationDto::getOrder).reversed()).toList();
+        listMigrationVo = newMigrationDtos.stream().sorted(Comparator.comparing(MigrationDto::getLevel).reversed()).toList();
     }
 
     public void clearMigrationList() {
