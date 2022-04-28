@@ -3,7 +3,7 @@ package com.br.migrationTool.constraints.querys;
 public final class TableReferenceQueryConstraint {
 
     public static final String GET_PARENT_TABLE = """
-            SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, A.COLUMN_NAME AS FOREINGKEYNAME
+            SELECT C_PK.TABLE_NAME AS TABLENAME, B.COLUMN_NAME AS PRIMARYKEYNAME, A.COLUMN_NAME AS FOREIGNKEYNAME
             FROM ALL_CONS_COLUMNS A
             JOIN ALL_CONSTRAINTS C ON A.OWNER = C.OWNER
             AND A.CONSTRAINT_NAME = C.CONSTRAINT_NAME
