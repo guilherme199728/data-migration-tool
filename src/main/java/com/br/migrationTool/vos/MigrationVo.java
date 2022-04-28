@@ -76,7 +76,6 @@ public class MigrationVo {
 
     public void organizeListMigration() {
 
-        //Collections.reverse(listMigrationVo);
         List<MigrationDto> newMigrationDtos = new ArrayList<>();
         Map<String, List<MigrationDto>> mapMigrationDtos = listMigrationVo
             .stream()
@@ -85,8 +84,12 @@ public class MigrationVo {
         mapMigrationDtos.forEach((tableName, migrationDtos) -> newMigrationDtos.add(
             MigrationDto.builder()
                 .tableName(tableName)
-                .isSearchedReference(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).isSearchedReference())
-                .basicTableStructureDto(Objects.requireNonNull(migrationDtos.stream().findFirst().orElse(null)).getBasicTableStructureDto())
+                .isSearchedReference(Objects.requireNonNull(
+                    migrationDtos.stream().findFirst().orElse(null)
+                ).isSearchedReference())
+                .basicTableStructureDto(Objects.requireNonNull(
+                    migrationDtos.stream().findFirst().orElse(null)
+                ).getBasicTableStructureDto())
                 .primaryKeys(migrationDtos.stream().map(MigrationDto::getPrimaryKeys).flatMap(List::stream).toList())
                 .level(migrationDtos.stream().mapToInt(MigrationDto::getLevel).max().orElse(0))
                 .build()
