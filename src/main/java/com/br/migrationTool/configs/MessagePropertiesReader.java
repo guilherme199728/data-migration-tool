@@ -9,6 +9,7 @@ import java.util.Locale;
 
 @Component
 public class MessagePropertiesReader {
+
     @Bean
     private MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();

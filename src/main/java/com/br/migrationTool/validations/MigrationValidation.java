@@ -14,9 +14,9 @@ import java.util.List;
 
 @Component
 public class MigrationValidation {
+
     @Value("${item.limit.migration}")
     private int itemLimitMigration;
-
     @Autowired
     MessagePropertiesReader messagePropertiesReader;
 

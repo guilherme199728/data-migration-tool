@@ -26,7 +26,6 @@ public class TableReferencesDao {
 
     @Autowired
     ConnectionOracleJDBC connectionOracleJDBC;
-
     @Autowired
     OwnerUtils ownerUtils;
 
@@ -35,7 +34,6 @@ public class TableReferencesDao {
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_PARENT_TABLE;
-
         String owner = ownerUtils.getOwner(isProd);
 
         QueryRunner runner = new QueryRunner();
@@ -50,7 +48,6 @@ public class TableReferencesDao {
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_BASIC_TABLE_STRUCTURE;
-
         String owner = ownerUtils.getOwner(isProd);
 
         QueryRunner runner = new QueryRunner();
@@ -85,7 +82,6 @@ public class TableReferencesDao {
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_CHILDREN_TABLES;
-
         String owner = ownerUtils.getOwner(isProd);
 
         QueryRunner runner = new QueryRunner();

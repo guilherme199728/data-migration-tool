@@ -25,25 +25,18 @@ public class MigrationUseCase {
 
     @Autowired
     TableReferencesDao tableReferencesDao;
-
     @Autowired
     MigrationDao migrationDao;
-
     @Autowired
     MigrationValidation migrationValidation;
-
     @Autowired
     MessagePropertiesReader messagePropertiesReader;
-
     @Autowired
     MigrationVo migrationVo;
-
     @Value("${search.fields.without.reference}")
     private boolean searchFieldsWithoutReference;
-
     @Value("${prefix.table}")
     private String prefixTable;
-
     @Value("${prefix.id}")
     private String prefixId;
 

@@ -22,7 +22,6 @@ public class MigrationController {
 
     @Autowired
     MigrationService migrationService;
-
     @Autowired
     MessagePropertiesReader messagePropertiesReader;
 
@@ -30,6 +29,7 @@ public class MigrationController {
     public ResponseEntity<BasicHttpResponse> migrateBySeparateIds(
         @RequestBody RequestSeparateIdsMigrationDto body
     ) throws SQLException {
+
         migrationService.migrateBySeparateIds(body);
 
         BasicHttpResponse basicHttpResponse = new BasicHttpResponse();
@@ -44,6 +44,7 @@ public class MigrationController {
     public ResponseEntity<BasicHttpResponse> migrateByRangeIds(
         @RequestBody RequestRangeIdsMigrationDto body
     ) throws SQLException {
+
         migrationService.migrateByRangeIds(body);
 
         BasicHttpResponse basicHttpResponse = new BasicHttpResponse();

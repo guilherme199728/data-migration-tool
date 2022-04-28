@@ -8,7 +8,6 @@ public class OwnerUtils {
 
     @Value("${megastore.prod.datasource}")
     String ownerProd;
-
     @Value("${megastore.hml.datasource}")
     String ownerHomolog;
 
