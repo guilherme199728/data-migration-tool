@@ -63,6 +63,7 @@ public class MigrationDao {
             tableDataDtos
         );
         logger.info(sqlUpdateData);
+
         return conn.prepareStatement(sqlUpdateData);
     }
 
