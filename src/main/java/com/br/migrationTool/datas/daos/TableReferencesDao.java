@@ -5,7 +5,6 @@ import com.br.migrationTool.datas.connections.ConnectionOracleJDBC;
 import com.br.migrationTool.dtos.migration.*;
 import com.br.migrationTool.utils.OwnerUtils;
 import com.br.migrationTool.utils.StringUtils;
-
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -13,9 +12,10 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -32,7 +32,6 @@ public class TableReferencesDao {
 
         String sql = TableReferenceQueryConstraint.GET_PARENT_TABLE;
         String owner = ownerUtils.getOwner(isProd);
-
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ParentTableDto>> rsh = new BeanListHandler<>(ParentTableDto.class);
         Object[] params = new Object[]{owner, owner, tableName, tableName};
@@ -46,7 +45,6 @@ public class TableReferencesDao {
 
         String sql = TableReferenceQueryConstraint.GET_BASIC_TABLE_STRUCTURE;
         String owner = ownerUtils.getOwner(isProd);
-
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<BasicTableStructureDto> rsh = new BeanHandler<>(BasicTableStructureDto.class);
         Object[] params = new Object[]{owner, tableName};
@@ -59,7 +57,6 @@ public class TableReferencesDao {
     ) throws SQLException {
 
         String sql = TableReferenceQueryConstraint.GET_ALL_NAMES_AND_TYPE_COLUMNS_TABLE;
-
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<NamesTypesFieldsTableDto>> rsh = new BeanListHandler<>(NamesTypesFieldsTableDto.class);
         Object[] params = new Object[]{tableName};
@@ -73,7 +70,6 @@ public class TableReferencesDao {
 
         String sql = TableReferenceQueryConstraint.GET_CHILDREN_TABLES;
         String owner = ownerUtils.getOwner(isProd);
-
         QueryRunner runner = new QueryRunner();
         ResultSetHandler<List<ChildrenTableDto>> rsh = new BeanListHandler<>(ChildrenTableDto.class);
         Object[] params = new Object[]{owner, owner, tableName};
