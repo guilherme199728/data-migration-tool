@@ -42,22 +42,22 @@ public class MigrationUseCase {
     private static final Logger logger = LoggerFactory.getLogger(MigrationUseCase.class);
 
     public void process(String tableName, List<String> ids) throws SQLException {
-        addTableToMigrationList(tableName, ids);
+        addTableToMigrationList(tableName.toUpperCase(Locale.ROOT), ids);
         migrationValidation.isAllMigratedItems(migrationVo.getListMigration());
         createMigrationList();
         migrationDao.executeMigration(migrationVo);
     }
 
-    private void addTableToMigrationList(
-        String initialTableName, List<String> primaryKeyList
-    ) throws SQLException {
+    private void addTableToMigrationList(String tableName, List<String> primaryKeyList) throws SQLException {
 
         BasicTableStructureDto basicTableStructureDto = tableReferencesDao.getBasicTableStructureFromConstraint(
-            initialTableName, true
+            tableName, true
         );
 
+        migrationValidation.isTableExists(basicTableStructureDto, tableName);
+
         MigrationDto migrationDto = MigrationDto.builder()
-            .tableName(initialTableName)
+            .tableName(tableName)
             .basicTableStructureDto(basicTableStructureDto)
             .isSearchedReference(false)
             .build();

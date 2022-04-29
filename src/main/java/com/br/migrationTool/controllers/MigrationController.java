@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Locale;
 
 @Controller
 @RequestMapping(value = "/dataMigrationTool")
@@ -34,7 +35,10 @@ public class MigrationController {
 
         BasicHttpResponse basicHttpResponse = new BasicHttpResponse();
         basicHttpResponse.setMessage(
-            MessageFormat.format(messagePropertiesReader.getMessage("migrate.success"), body.getTableName())
+            MessageFormat.format(
+                messagePropertiesReader.getMessage("migrate.success"),
+                body.getTableName().toLowerCase(Locale.ROOT)
+            )
         );
 
         return new ResponseEntity<>(basicHttpResponse, HttpStatus.OK);
