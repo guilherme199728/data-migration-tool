@@ -32,9 +32,9 @@ public class DataMigrationToolExceptionHandler extends ResponseEntityExceptionHa
     }
 
     @ExceptionHandler(value = SQLException.class)
-    protected ResponseEntity<BasicHttpResponse> sqlException(RuntimeException ex, WebRequest request) {
+    protected ResponseEntity<BasicHttpResponse> sqlException(Exception ex, WebRequest request) {
         BasicHttpResponse responseBody = new BasicHttpResponse();
-        responseBody.setMessage(ex.getMessage());
+        responseBody.setMessage(ex.getCause().toString());
 
         return new ResponseEntity<>(responseBody, HttpStatus.INTERNAL_SERVER_ERROR);
     }
