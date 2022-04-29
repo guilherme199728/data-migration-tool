@@ -61,6 +61,9 @@ public class MigrationVo {
         } else if (primaryKeysForAdded.size() != 0) {
             newMigrationDto.setPrimaryKeys(primaryKeysForAdded.stream().distinct().collect(Collectors.toList()));
             listMigrationVo.add(newMigrationDto);
+        } else {
+            newMigrationDto.setPrimaryKeys(new ArrayList<>());
+            listMigrationVo.add(newMigrationDto);
         }
     }
 

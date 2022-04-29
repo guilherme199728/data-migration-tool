@@ -84,6 +84,10 @@ public class DataTableDao {
         MigrationDto migrationDto, BasicTableStructureDto parentTables, boolean isProd
     ) throws SQLException {
 
+        if(migrationDto.getPrimaryKeys().size() == 0) {
+            return new ArrayList<>();
+        }
+
         PreparedStatement ps = null;
         ResultSet rs = null;
         List<String> primaryKeys = new ArrayList<>();
